@@ -1,0 +1,603 @@
+# operation checklist :
+#doLogin ✔
+#setMyUserName ✔
+#uploadPhoto ✔
+#followUser  ✔
+#unfollowUser ✔
+#banUser ✔
+#unbanUser ✔
+#getUserProfile ✔
+#getMyStream✔
+#likePhoto ✔
+#unlikePhoto ✔
+#commentPhoto ✔
+#uncommentPhoto  ✔
+#deletePhoto ✔
+
+openapi: 3.0.0
+info:
+  title: wasa-Photo
+  description: |
+    Each user will be presented with a stream of photos in reverse chronological order, with information
+    about when it was uploaded (date and time) and how many likes and comments it has. Users can place
+    (and later remove) a “like” to photos from other users. Also, users can add comments to any photo
+    (even those uploaded by themself). Comments can be removed by the author only.
+    Users can ban other users. If Alice (user) bans Eve (user), Eve won’t be able to see any information
+    about Alice. Alice can decide to remove the ban at any moment.
+    Users will have their own personal profiles. The personal profile page for user detail: user’s photos (in
+    reverse chronological order), their followers and following, and how many photos have been uploaded.
+    Each user can change his/her own username, upload photos, remove photos, and follow/unfollow
+    other users. Removal of a photo will also remove likes and comments.
+    User profiles can be searched via username.
+  version: 0.0.1
+tags:
+  - name: User
+    description: Operations about user
+  - name: Photos
+    description: Operations about photo
+  - name: Other User
+    description: Operations about other user
+  - name: Login
+    description: Operations about login
+paths:  
+  /session:
+    post:
+      tags: ["Login"]
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        '201':
+          description: |
+            User log-in action successful returning session ID
+          content:  
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "2d38da438c252b0d5755e1c1e8caa104"
+  /home:
+        parameters:
+          - in: header
+            name : token
+            schema :
+              type: string
+            required: true
+        get:
+          tags: ["User"]
+          summary: Get user home page
+          description: |-
+            Get the  user home page
+          operationId: getMyStream
+          responses:
+            "200":
+              description: "user Home page loaded correcttly"
+              content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                          example: "Maria"
+                        photo:
+                          type: string
+                          example: |
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
+                            OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
+                            /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
+                            /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
+                            /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
+                            /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
+                            /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
+                        date:
+                          type: string
+                          example: "2011-12-30 18:39:45"
+                        likes:
+                          type: integer
+                          example: 10
+                        comments:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              username:
+                                type: string
+                                example: "lucas"
+                              comment:
+                                type: string
+                                example: "Wow wonderfull picture"
+                              date:
+                                type: string
+                                example: "2011-12-30 19:39:45"
+  /users:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    get:
+       tags: ["User"]
+       summary: "get users , either all or searching for a username"
+       description: |
+            Get the users list if no parameter given, otherwise search for some users
+       operationId: getUsers
+       parameters:
+          - in: query
+            name: username
+            schema:
+              type: string
+            required: false
+       responses:
+        "200":
+          description: "users list found "
+          content:  
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    type: string
+                  example: ["Maria","John"] 
+  /users/{username}:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true  
+    get:
+      tags: ["User"]
+      summary: "Get user information"
+      description: |-
+        returns back a j-son file object containing all the information
+        related to that user Id
+      operationId: getUserProfile
+      parameters:
+        - name : user username
+          in: path
+          required : true
+          schema:
+            type: string
+            example : lucas
+      responses:
+        "200":
+          description: 
+            "user correctly retrieved "
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /users/{username}/options:
+    post:
+      parameters:
+        - in: header
+          name: token
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: username
+          schema:
+            type: string
+          required: true
+      tags: ["User"]
+      summary: "Change username"
+      description: |-
+        Change the user name
+      operationId: setMyUserName
+      requestBody:
+        description: User New Username
+        content:
+          application/json:
+            schema:
+              type: string
+              example: "lucas-2001"
+        required: true
+      responses:
+        "200":
+          description: 
+            "user name changed"
+  /users/{username}/Photos:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    get:
+      tags: [Photos]
+      summary: "Get a photo"
+      description: |-
+        returns the photo object with the given id
+      operationId: getPhoto
+      parameters:
+        - name : photo id
+          in: query
+          required : true
+          schema:
+            type: string
+            example : 1
+        - name : user username
+          in: path
+          required : true
+          schema:
+            type: string
+            example : lucas
+      responses:
+        "200":
+          description: 
+            "photo correctly retrieved "
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
+    post:
+      tags : [ "Photos"]
+      summary: "post a new photo"
+      description: "gets a photo from the client and create a resource photo{id} in the server"
+      operationId: "uploadPhoto"
+      parameters:
+        - name: "photo"
+          in : query
+          required: true
+          schema :
+            type: string
+            example: |
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
+              OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
+              /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
+              /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
+              /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
+              /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
+              /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: thomas
+      responses:
+        "201":
+          description: "picture uploaded correctly, returning the id of that picture"
+          content:
+            application/json:
+              schema:
+                type: string
+                example: ejasorjtd8574
+  /users/{username}/Photos/{id}:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    delete:
+      tags: [Photos]
+      summary: "delete a picture"
+      description: |
+        delete a picture from the server
+      operationId: "deletePhoto"
+      parameters:
+        - name: "photo id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: ejasorjtd8574
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: lucas
+      responses:
+        "200":
+          description: "picture deleted correctly"
+  /users/{username}/Photos/{id}/likes:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    delete:
+        tags: [Photos]
+        summary: "delete a like"
+        description: |
+          delete a like from a picture
+        operationId: "unlikePhoto"
+        parameters:
+          - name: "photo id"
+            in : path
+            required: true
+            schema :
+              type: string
+              example: ejasorjtd8574
+          - name: "user id"
+            in : path
+            required: true
+            schema :
+              type: string
+              example: lucas
+        responses:
+          "200":
+            description: "like deleted correctly"
+    post:
+      tags: ["Photos"]
+      summary: "like a picture"
+      description: "takes the Id of a Picture , the ID of the logged in user , and adds a like to it"
+      operationId: "likePhoto"
+      parameters:
+          - name: "photo id"
+            in : path
+            required: true
+            schema :
+              type: string
+              example: ejasorjtd8574
+          - name: "user id"
+            in : path
+            required: true
+            schema :
+              type: string
+              example: lucas
+      responses:
+        "200":
+          description: "like added correctly"
+  /users/{username}/Photos/{id}/comments:
+      parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+      post: 
+        tags: [Photos]   
+        summary: "add a comment to a picture"
+        description: |
+          "takes the Id of a Picture ,
+           the token of the logged in user , 
+           and adds a comment to it"   
+        operationId: "addComment"
+        parameters:
+          - name: "comment"
+            in : query
+            required: true
+            schema :
+              type: string
+              example: "Wow wonderfull picture"
+          - name: "user id"
+            in : path
+            required: true
+            schema :
+              type: string
+              example: lucas
+        responses:
+          "200":
+            description: "comment added correctly"
+            content:
+              application/json:
+                schema:
+                  type: integer
+                  example: 10
+  /users/{username}/Photos/{id}/comments/{id}:
+     parameters:
+       - in: header
+         name: token
+         schema:
+           type: string
+         required: true
+     delete:
+          tags: [Photos]
+          summary: "delete a comment"
+          description: |
+            "takes the Id of a Picture ,
+            the token of the logged in user , 
+            the id of the comment to delete,
+            and deletes a comment from it"
+          operationId: "deleteComment"
+          parameters:
+            - name: "comment"
+              in : path
+              required: true
+              schema :
+                type: integer
+                example: 10
+            - name: "photo"
+              in : path
+              required: true
+              schema :
+                type: string
+                example: ejasorjtd857
+            - name: "user id"
+              in : path
+              required: true
+              schema :
+                type: string
+                example: lucas
+          responses:
+            "200":
+              description: "comment deleted correctly"
+  /user/{username}/following:
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    post:
+      tags: [Other User]
+      summary: "starts following a user "
+      description: |-
+        it modifies the following list of the logged in user
+        adding the selected user
+      operationId: followUser
+      parameters:
+        - name : user username
+          in: query
+          required : true
+          schema:
+            type: string
+            example : lucas
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: thomas
+      responses:
+        "200":
+          description: "user correctly added to the following list"
+    delete:
+      tags: [Other User]
+      summary: "unfollows a user"
+      description: | 
+        "it modifies the following list of the logged in user 
+        removing the selected user "   
+      operationId: unfollowUser
+      parameters:
+        - name: user username
+          in : query
+          required : true
+          schema:
+            type: string
+            example : lucas
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: thomas
+      responses:
+        "200":
+          description: "user correctly removed from the following list"
+  /user/{username}/banned: 
+    parameters:
+      - in: header
+        name: token
+        schema:
+          type: string
+        required: true
+    post: 
+      tags: [Other User]
+      summary: "bans a user"
+      description: "takes the id of a user and adds it to the banned list of another user "
+      operationId: "banUser"
+      parameters:
+        - name: "userID"
+          in : query
+          required: true
+          schema :
+            type: string
+            example: lucas
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: thomas
+      responses:
+        "200":
+          description: "user correctly added to the banned list"
+    delete:
+      tags: [Other User]
+      summary: "unbans a user"
+      description: "takes the id of a user and removes it from the banned list of another user"
+      operationId: "unbanUser"
+      parameters:
+        - name: "userID"
+          in : query
+          required: true
+          schema :
+            type: string
+            example: lucas
+        - name: "user id"
+          in : path
+          required: true
+          schema :
+            type: string
+            example: thomas           
+      responses:
+        "200":
+          description: "user correctly removed from the banned list"
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+          followers:
+            type: array
+          following:
+            type: array
+            example:
+              - jhonny 
+              - jacob
+              - cindy 
+          number-of-photos :
+            type: integer
+            example: 4
+          photos: 
+            type: array
+            items:
+                type: string
+                example:
+                  - ejasorjtd8574
+                  - ejasorjtd8575
+    Photo:
+      type: object
+      properties:
+        image:
+          type: string
+          example: |
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
+            OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
+            /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
+            /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
+            /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
+            /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
+            /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
+        id:
+          type: string
+          example: ejasorjtd8574
+        likes:
+          type: array
+          items:
+            type: string
+            example:
+              - lucas
+              - thomas
+        comments:
+          type: array
+          items:
+            type: string
+            example:
+              - "Wow wonderfull picture"
+              - "I love it"
+        date:
+          type: string
+          example: "2020-12-12"
+
+
+
+        
