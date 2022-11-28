@@ -39,6 +39,10 @@ tags:
     description: Operations about other user
   - name: Login
     description: Operations about login
+
+
+
+
 paths:  
   /session:
     post:
@@ -76,12 +80,6 @@ paths:
                     type: string
                     example: "2d38da438c252b0d5755e1c1e8caa104"
   /home:
-        parameters:
-          - in: header
-            name : token
-            schema :
-              type: string
-            required: true
         get:
           tags: ["User"]
           summary: Get user home page
@@ -98,46 +96,9 @@ paths:
                     items:
                       type: object
                       properties:
-                        username:
-                          type: string
-                          example: "Maria"
                         photo:
-                          type: string
-                          example: |
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
-                            OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
-                            /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
-                            /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
-                            /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
-                            /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
-                            /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
-                        date:
-                          type: string
-                          example: "2011-12-30 18:39:45"
-                        likes:
-                          type: integer
-                          example: 10
-                        comments:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              username:
-                                type: string
-                                example: "lucas"
-                              comment:
-                                type: string
-                                example: "Wow wonderfull picture"
-                              date:
-                                type: string
-                                example: "2011-12-30 19:39:45"
+                          $ref: '#/components/schemas/Photo'
   /users:
-    parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
     get:
        tags: ["User"]
        summary: "get users , either all or searching for a username"
@@ -145,11 +106,7 @@ paths:
             Get the users list if no parameter given, otherwise search for some users
        operationId: getUsers
        parameters:
-          - in: query
-            name: username
-            schema:
-              type: string
-            required: false
+          - $ref: "#/components/parameters/othersusername"
        responses:
         "200":
           description: "users list found "
@@ -161,12 +118,6 @@ paths:
                     type: string
                   example: ["Maria","John"] 
   /users/{username}:
-    parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true  
     get:
       tags: ["User"]
       summary: "Get user information"
@@ -175,12 +126,8 @@ paths:
         related to that user Id
       operationId: getUserProfile
       parameters:
-        - name : user username
-          in: path
-          required : true
-          schema:
-            type: string
-            example : lucas
+        - $ref: '#/components/parameters/username'
+
       responses:
         "200":
           description: 
@@ -192,16 +139,7 @@ paths:
   /users/{username}/options:
     post:
       parameters:
-        - in: header
-          name: token
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: username
-          schema:
-            type: string
-          required: true
+        - $ref: '#/components/parameters/username'
       tags: ["User"]
       summary: "Change username"
       description: |-
@@ -219,40 +157,53 @@ paths:
         "200":
           description: 
             "user name changed"
-  /users/{username}/Photos:
+  /user/{username}/following/{otherusername}:
     parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
-    get:
-      tags: [Photos]
-      summary: "Get a photo"
+        - $ref: "#/components/parameters/othersusername"
+        - $ref: "#/components/parameters/username"
+    post:
+      tags: [Other User]
+      summary: "starts following a user "
       description: |-
-        returns the photo object with the given id
-      operationId: getPhoto
-      parameters:
-        - name : photo id
-          in: query
-          required : true
-          schema:
-            type: string
-            example : 1
-        - name : user username
-          in: path
-          required : true
-          schema:
-            type: string
-            example : lucas
+        it modifies the following list of the logged in user
+        adding the selected user
+      operationId: followUser
       responses:
         "200":
-          description: 
-            "photo correctly retrieved "
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Photo"
+          description: "user correctly added to the following list"
+    delete:
+      tags: [Other User]
+      summary: "unfollows a user"
+      description: | 
+        "it modifies the following list of the logged in user 
+        removing the selected user "   
+      operationId: unfollowUser
+      responses:
+        "200":
+          description: "user correctly removed from the following list"
+  /user/{username}/banned/{othersusername}: 
+    parameters:
+        - $ref: "#/components/parameters/othersusername"
+        - $ref: "#/components/parameters/username"
+    post: 
+      tags: [Other User]
+      summary: "bans a user"
+      description: "takes the id of a user and adds it to the banned list of another user "
+      operationId: "banUser"
+      responses:
+        "200":
+          description: "user correctly added to the banned list"
+    delete:
+      tags: [Other User]
+      summary: "unbans a user"
+      description: "takes the id of a user and removes it from the banned list of another user"
+      operationId: "unbanUser"
+      responses:
+        "200":
+          description: "user correctly removed from the banned list"
+  /users/{username}/Photos:
+    parameters:
+      - $ref: "#/components/schemas/Photo"
     post:
       tags : [ "Photos"]
       summary: "post a new photo"
@@ -272,12 +223,6 @@ paths:
               /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
               /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
               /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: thomas
       responses:
         "201":
           description: "picture uploaded correctly, returning the id of that picture"
@@ -286,42 +231,37 @@ paths:
               schema:
                 type: string
                 example: ejasorjtd8574
-  /users/{username}/Photos/{id}:
+  /users/{username}/Photos/{photoid}:
     parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
+        - $ref: "#/components/parameters/pothosid"
+        - $ref: "#/components/parameters/username"
+    get:
+      tags: [Photos]
+      summary: "Get a photo"
+      description: |-
+        returns the photo object with the given id
+      operationId: getPhoto
+      responses:
+        "200":
+          description: "photo correctly returned"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        "404":
+          description: "photo not found"
     delete:
       tags: [Photos]
       summary: "delete a picture"
       description: |
         delete a picture from the server
       operationId: "deletePhoto"
-      parameters:
-        - name: "photo id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: ejasorjtd8574
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: lucas
       responses:
         "200":
           description: "picture deleted correctly"
-  /users/{username}/Photos/{id}/likes:
+  /users/{username}/Photos/{photoid}/likes:
     parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
+    - $ref: "#/components/parameters/pothosid"
     delete:
         tags: [Photos]
         summary: "delete a like"
@@ -335,12 +275,7 @@ paths:
             schema :
               type: string
               example: ejasorjtd8574
-          - name: "user id"
-            in : path
-            required: true
-            schema :
-              type: string
-              example: lucas
+          - $ref: "#/components/parameters/username"
         responses:
           "200":
             description: "like deleted correctly"
@@ -356,22 +291,14 @@ paths:
             schema :
               type: string
               example: ejasorjtd8574
-          - name: "user id"
-            in : path
-            required: true
-            schema :
-              type: string
-              example: lucas
+          - $ref: "#/components/parameters/username"
       responses:
         "200":
           description: "like added correctly"
-  /users/{username}/Photos/{id}/comments:
+  /users/{username}/Photos/{photoid}/comments:
       parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
+      - $ref: "#/components/parameters/pothosid"
+      - $ref: "#/components/parameters/username"
       post: 
         tags: [Photos]   
         summary: "add a comment to a picture"
@@ -387,12 +314,6 @@ paths:
             schema :
               type: string
               example: "Wow wonderfull picture"
-          - name: "user id"
-            in : path
-            required: true
-            schema :
-              type: string
-              example: lucas
         responses:
           "200":
             description: "comment added correctly"
@@ -401,13 +322,11 @@ paths:
                 schema:
                   type: integer
                   example: 10
-  /users/{username}/Photos/{id}/comments/{id}:
+  /users/{username}/Photos/{photoid}/comments/{commentid}:
      parameters:
-       - in: header
-         name: token
-         schema:
-           type: string
-         required: true
+       - $ref: "#/components/parameters/pothosid"
+       - $ref: "#/components/parameters/username"
+       - $ref: "#/components/parameters/commentid"
      delete:
           tags: [Photos]
           summary: "delete a comment"
@@ -417,131 +336,45 @@ paths:
             the id of the comment to delete,
             and deletes a comment from it"
           operationId: "deleteComment"
-          parameters:
-            - name: "comment"
-              in : path
-              required: true
-              schema :
-                type: integer
-                example: 10
-            - name: "photo"
-              in : path
-              required: true
-              schema :
-                type: string
-                example: ejasorjtd857
-            - name: "user id"
-              in : path
-              required: true
-              schema :
-                type: string
-                example: lucas
           responses:
             "200":
               description: "comment deleted correctly"
-  /user/{username}/following:
-    parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
-    post:
-      tags: [Other User]
-      summary: "starts following a user "
-      description: |-
-        it modifies the following list of the logged in user
-        adding the selected user
-      operationId: followUser
-      parameters:
-        - name : user username
-          in: query
-          required : true
-          schema:
-            type: string
-            example : lucas
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: thomas
-      responses:
-        "200":
-          description: "user correctly added to the following list"
-    delete:
-      tags: [Other User]
-      summary: "unfollows a user"
-      description: | 
-        "it modifies the following list of the logged in user 
-        removing the selected user "   
-      operationId: unfollowUser
-      parameters:
-        - name: user username
-          in : query
-          required : true
-          schema:
-            type: string
-            example : lucas
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: thomas
-      responses:
-        "200":
-          description: "user correctly removed from the following list"
-  /user/{username}/banned: 
-    parameters:
-      - in: header
-        name: token
-        schema:
-          type: string
-        required: true
-    post: 
-      tags: [Other User]
-      summary: "bans a user"
-      description: "takes the id of a user and adds it to the banned list of another user "
-      operationId: "banUser"
-      parameters:
-        - name: "userID"
-          in : query
-          required: true
-          schema :
-            type: string
-            example: lucas
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: thomas
-      responses:
-        "200":
-          description: "user correctly added to the banned list"
-    delete:
-      tags: [Other User]
-      summary: "unbans a user"
-      description: "takes the id of a user and removes it from the banned list of another user"
-      operationId: "unbanUser"
-      parameters:
-        - name: "userID"
-          in : query
-          required: true
-          schema :
-            type: string
-            example: lucas
-        - name: "user id"
-          in : path
-          required: true
-          schema :
-            type: string
-            example: thomas           
-      responses:
-        "200":
-          description: "user correctly removed from the banned list"
+
+
 components:
+  parameters:
+    username:
+      name: username
+      in: path
+      description: "user name"
+      required: true
+      schema:
+        type: string
+        example: lucas
+    othersusername:
+      name: othersusername
+      in: path
+      description: "other user name"
+      required: true
+      schema:
+        type: string
+        example: lucas
+    pothosid:
+      name: photoid
+      in: path 
+      description: "photo id"
+      required: true
+      schema:
+        type: string
+        example: ejasorjtd8574
+    commentid:
+      name: commentid
+      in: path
+      description: "comment id"
+      required: true
+      schema:
+        type: integer
+        example: 10
   schemas:
     User:
       type: object
@@ -597,6 +430,13 @@ components:
         date:
           type: string
           example: "2020-12-12"
+  securitySchemes:
+    bearerAuth:    
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: [] 
 
 
 
