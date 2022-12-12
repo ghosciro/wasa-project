@@ -1,18 +1,3 @@
-# operation checklist :
-#doLogin ✔
-#setMyUserName ✔
-#uploadPhoto ✔
-#followUser  ✔
-#unfollowUser ✔
-#banUser ✔
-#unbanUser ✔
-#getUserProfile ✔
-#getMyStream✔
-#likePhoto ✔
-#unlikePhoto ✔
-#commentPhoto ✔
-#uncommentPhoto  ✔
-#deletePhoto ✔
 
 openapi: 3.0.0
 info:
@@ -106,7 +91,13 @@ paths:
             Get the users list if no parameter given, otherwise search for some users
        operationId: getUsers
        parameters:
-          - $ref: "#/components/parameters/othersusername"
+        - name : otherusername
+          in: query
+          description: "other user name"
+          required: true
+          schema:
+            type: string
+            example: lucas
        responses:
         "200":
           description: "users list found "
@@ -181,7 +172,7 @@ paths:
       responses:
         "200":
           description: "user correctly removed from the following list"
-  /user/{username}/banned/{othersusername}: 
+  /user/{username}/banned/{otherusername}: 
     parameters:
         - $ref: "#/components/parameters/othersusername"
         - $ref: "#/components/parameters/username"
@@ -203,7 +194,7 @@ paths:
           description: "user correctly removed from the banned list"
   /users/{username}/Photos:
     parameters:
-      - $ref: "#/components/schemas/Photo"
+      - $ref: "#/components/parameters/username"
     post:
       tags : [ "Photos"]
       summary: "post a new photo"
@@ -269,7 +260,7 @@ paths:
           delete a like from a picture
         operationId: "unlikePhoto"
         parameters:
-          - name: "photo id"
+          - name: photoid
             in : path
             required: true
             schema :
@@ -285,7 +276,7 @@ paths:
       description: "takes the Id of a Picture , the ID of the logged in user , and adds a like to it"
       operationId: "likePhoto"
       parameters:
-          - name: "photo id"
+          - name: "photoid"
             in : path
             required: true
             schema :
@@ -352,7 +343,7 @@ components:
         type: string
         example: lucas
     othersusername:
-      name: othersusername
+      name: otherusername
       in: path
       description: "other user name"
       required: true
@@ -381,8 +372,12 @@ components:
       properties:
           followers:
             type: array
+            items:
+              type: string
           following:
             type: array
+            items:
+                type: string
             example:
               - jhonny 
               - jacob
@@ -437,7 +432,3 @@ components:
       bearerFormat: JWT
 security:
   - bearerAuth: [] 
-
-
-
-        
