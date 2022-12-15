@@ -48,9 +48,9 @@ paths:
                 name:
                   type: string
                   example: Maria
-                  pattern: 'ˆ.*?$'
+                  pattern: '"^[a-zA-Z0-9_]*$"'
                   minLength: 3
-                  maxLength: 16
+                  maxLength: 64
         required: true
       responses:
         '201':
@@ -63,6 +63,9 @@ paths:
                 properties:
                   token:
                     type: string
+                    minLength: 1
+                    maxLength: 128
+                    pattern: '^[a-z0-9]*$'
                     example: "2d38da438c252b0d5755e1c1e8caa104"
   /home:
         get:
@@ -97,6 +100,9 @@ paths:
           required: true
           schema:
             type: string
+            pattern: '^[a-zA-Z0-9_]*$'
+            minLength: 3
+            maxLength: 64
             example: lucas
        responses:
         "200":
@@ -107,6 +113,11 @@ paths:
                   type: array
                   items: 
                     type: string
+                    pattern: "^[a-zA-Z0-9_]*$"
+                    minLength: 3
+                    maxLength: 64
+                  minItems: 0  
+                  maxItems: 1024
                   example: ["Maria","John"] 
   /users/{username}:
     get:
@@ -142,7 +153,10 @@ paths:
           application/json:
             schema:
               type: string
-              example: "lucas-2001"
+              pattern: "^[a-zA-Z0-9_]*$"
+              minLength: 3
+              maxLength: 64
+              example: "lucas2001"
         required: true
       responses:
         "200":
@@ -206,6 +220,9 @@ paths:
           required: true
           schema :
             type: string
+            pattern: 'data:image\/(png|jpg|jpeg);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)'
+            minLength: 32
+            maxLength: 1000000
             example: |
               <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
               OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
@@ -221,6 +238,9 @@ paths:
             application/json:
               schema:
                 type: string
+                pattern: "^[a-z0-9_]*$"
+                minLength: 1
+                maxLength: 1024
                 example: ejasorjtd8574
   /users/{username}/Photos/{photoid}:
     parameters:
@@ -265,12 +285,15 @@ paths:
             required: true
             schema :
               type: string
+              minLength: 1
+              maxLength: 1024
+              pattern: "^[a-zA-Z0-9_]*$"
               example: ejasorjtd8574
           - $ref: "#/components/parameters/username"
         responses:
           "200":
             description: "like deleted correctly"
-    post:
+    put:
       tags: ["Photos"]
       summary: "like a picture"
       description: "takes the Id of a Picture , the ID of the logged in user , and adds a like to it"
@@ -281,6 +304,9 @@ paths:
             required: true
             schema :
               type: string
+              minLength: 1
+              maxLength: 1024
+              pattern: "^[a-zA-Z0-9_]*$"
               example: ejasorjtd8574
           - $ref: "#/components/parameters/username"
       responses:
@@ -297,13 +323,16 @@ paths:
           "takes the Id of a Picture ,
            the token of the logged in user , 
            and adds a comment to it"   
-        operationId: "addComment"
+        operationId: "commentPhoto"
         parameters:
           - name: "comment"
             in : query
             required: true
             schema :
               type: string
+              minLength: 1
+              maxLength: 2048
+              pattern: /^[ A-Za-z0-9_@./#&+-!?=$%&()_^]*$/
               example: "Wow wonderfull picture"
         responses:
           "200":
@@ -321,12 +350,12 @@ paths:
      delete:
           tags: [Photos]
           summary: "delete a comment"
+          operationId: unccomentPhoto
           description: |
             "takes the Id of a Picture ,
             the token of the logged in user , 
             the id of the comment to delete,
             and deletes a comment from it"
-          operationId: "deleteComment"
           responses:
             "200":
               description: "comment deleted correctly"
@@ -341,6 +370,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 3
+        maxLength: 64
+        pattern: "^[a-zA-Z0-9_]*$"
         example: lucas
     othersusername:
       name: otherusername
@@ -349,6 +381,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 3
+        maxLength: 64
+        pattern: "^[a-zA-Z0-9_]*$"
         example: lucas
     pothosid:
       name: photoid
@@ -357,6 +392,9 @@ components:
       required: true
       schema:
         type: string
+        minLength: 1
+        maxLength: 1024
+        pattern: "^[a-z0-9]*$"
         example: ejasorjtd8574
     commentid:
       name: commentid
@@ -374,10 +412,18 @@ components:
             type: array
             items:
               type: string
+              minLength: 3
+              maxLength: 64
+              pattern: "^[a-zA-Z0-9_]*$"
+              example: lucas
           following:
             type: array
             items:
                 type: string
+                minLength: 3
+                maxLength: 64
+                pattern: "^[a-zA-Z0-9_]*$"
+                example: lucas
             example:
               - jhonny 
               - jacob
@@ -389,6 +435,9 @@ components:
             type: array
             items:
                 type: string
+                minLength: 1
+                maxLength: 1024
+                pattern: "^[a-z0-9]*$"
                 example:
                   - ejasorjtd8574
                   - ejasorjtd8575
@@ -397,21 +446,33 @@ components:
       properties:
         image:
           type: string
+          pattern: "data:image\/(png|jpg|jpeg);base64,([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)"
+          maxLength: 1000000
+          minLength: 32
           example: |
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
-            OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
-            /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
-            /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
-            /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
-            /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
-            /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
+              <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAApgAAAKYB3X3/
+              OAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVEiJtZZPbBtFFMZ/M7ubXdtdb1xSFyeilBapySVU8h8OoFaooFSqiihIVIpQBKci6KEg9Q6H9kovIHoCIVQJJCKE1ENFjnAgcaSGC6rEnxBwA04Tx43t2FnvDAfjkNibxgHxnWb2e
+              /u992bee7tCa00YFsffekFY+nUzFtjW0LrvjRXrCDIAaPLlW0nHL0SsZtVoaF98mLrx3pdhOqLtYPHChahZcYYO7KvPFxvRl5XPp1sN3adWiD1ZAqD6XYK1b/dvE5IWryTt2udLFedwc1+9kLp+vbbpoDh+6TklxBeAi9TL0taeWpdmZzQDry0AcO+jQ12RyohqqoYoo8RDwJrU+qXkjWtfi8Xxt58BdQuwQs9qC
+              /afLwCw8tnQbqYAPsgxE1S6F3EAIXux2oQFKm0ihMsOF71dHYx+f3NND68ghCu1YIoePPQN1pGRABkJ6Bus96CutRZMydTl+TvuiRW1m3n0eDl0vRPcEysqdXn+jsQPsrHMquGeXEaY4Yk4wxWcY5V
+              /9scqOMOVUFthatyTy8QyqwZ+kDURKoMWxNKr2EeqVKcTNOajqKoBgOE28U4tdQl5p5bwCw7BWquaZSzAPlwjlithJtp3pTImSqQRrb2Z8PHGigD4RZuNX6JYj6wj7O4TFLbCO/Mn/m8R+h6rYSUb3ekokRY6f/YukArN979jcW+V
+              /S8g0eT/N3VN3kTqWbQ428m9/8k0P/1aIhF36PccEl6EhOcAUCrXKZXXWS3XKd2vc/TRBG9O5ELC17MmWubD2nKhUKZa26Ba2+D3P+4/MNCFwg59oWVeYhkzgN/JDR8deKBoD7Y+ljEjGZ0sosXVTvbc6RHirr2reNy1OXd6pJsQ+gqjk8VWFYmHrwBzW/n+uMPFiRwHB2I7ih8ciHFxIkd/3Omk5tCDV1t+2nNu5sxxpDFNx+huNhVT3
+              /zMDz8usXC3ddaHBj1GHj/As08fwTS7Kt1HBTmyN29vdwAw+/wbwLVOJ3uAD1wi/dUH7Qei66PfyuRj4Ik9is+hglfbkbfR3cnZm7chlUWLdwmprtCohX4HUtlOcQjLYCu+fzGJH2QRKvP3UNz8bWk1qMxjGTOMThZ3kvgLI5AzFfo379UAAAAASUVORK5CYII=">
+ 
+
+          
         id:
           type: string
+          minLength: 1
+          maxLength: 1024
+          pattern: "^[a-z0-9]*$"
           example: ejasorjtd8574
         likes:
           type: array
           items:
             type: string
+            minLength: 3
+            maxLength: 64
+            pattern: "^[a-zA-Z0-9_]*$"
             example:
               - lucas
               - thomas
@@ -419,11 +480,15 @@ components:
           type: array
           items:
             type: string
+            minLength: 1
+            maxLength: 2048
+            pattern: /^[ A-Za-z0-9_@./#&+-!?=$%&()_^]*$/
             example:
               - "Wow wonderfull picture"
               - "I love it"
         date:
           type: string
+          format: date
           example: "2020-12-12"
   securitySchemes:
     bearerAuth:    
