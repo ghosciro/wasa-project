@@ -181,7 +181,7 @@ paths:
         adding the selected user
       operationId: followUser
       responses:
-        "204":
+        "201":
           description: "user correctly added to the following list"
     delete:
       tags: [Other User]
@@ -203,7 +203,7 @@ paths:
       description: "takes the id of a user and adds it to the banned list of another user "
       operationId: "banUser"
       responses:
-        "204":
+        "201":
           description: "user correctly added to the banned list"
     delete:
       tags: [Other User]
@@ -296,8 +296,15 @@ paths:
       description: "takes the Id of a Picture , the ID of the logged in user , and adds a like to it"
       operationId: "likePhoto"
       responses:
-        "204":
-          description: "like added correctly"
+        "201":
+          description: "liked added correctly"
+          content:
+            application/json:
+              schema:
+                description:  "the like id of that like "
+                type: integer
+                example: 12
+
   /users/{username}/Photos/{photoid}/comments:
       parameters:
       - $ref: "#/components/parameters/pothosid"
@@ -321,7 +328,7 @@ paths:
               pattern: /^[ A-Za-z0-9_@./#&+-!?=$%&()_^]*$/
               example: "Wow wonderfull picture"
         responses:
-          "202":
+          "201":
             description: "comment added correctly"
             content:
               application/json:
