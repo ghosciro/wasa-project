@@ -216,7 +216,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/username"
     post:
-      tags : [ "Photos"]
+      tags : ["Photos"]
       summary: "post a new photo"
       description: "gets a photo from the client and create a resource photo{id} in the server"
       operationId: "uploadPhoto"

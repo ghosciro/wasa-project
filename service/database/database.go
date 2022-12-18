@@ -36,12 +36,36 @@ import (
 	"fmt"
 )
 
+type User struct {
+	Username  string
+	Followers []string
+	Follows   []string
+	Nphotos   int
+}
+type Photo struct {
+	Id    int64
+	Photo string
+	Date  string
+}
+
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
-
-	Ping() error
+	banUser(token string, otheruserid string) error
+	commentPhoto(token string, photoid string, comment string) (int, error)
+	deletePhoto(token string, photoid string) error
+	doLogin(username string) (string, error)
+	followUser(token string, otheruserid string) error
+	getMyStream(token string) ([]Photo, error)
+	getPhoto(token string, id string) (Photo, error)
+	getUserProfile(token string, userid string) (User, error)
+	getUsers(token string, username string) ([]string, error)
+	likePhoto(token string, photoid string) error
+	setMyUserName(token string, new_username string) error
+	unbanUser(token string, otheruserid string) error
+	unccomentPhoto(token string, photoid string, comment int) error
+	unfollowUser(token string, otheruserid string) error
+	unlikePhoto(token string, photoid string) error
+	uploadPhoto(token string, photo string) (string, error)
 }
 
 type appdbimpl struct {
@@ -51,21 +75,39 @@ type appdbimpl struct {
 // New returns a new instance of AppDatabase based on the SQLite connection `db`.
 // `db` is required - an error will be returned if `db` is `nil`.
 func New(db *sql.DB) (AppDatabase, error) {
+	var err error
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-
-	// Check if table exists. If not, the database is empty, and we need to create the structure
-	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
-	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
-		_, err = db.Exec(sqlStmt)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
+	//create user table
+	usertable := "CREATE TABLE IF NOT EXISTS Users (token TEXT NOT NULL PRIMARY KEY, username TEXT NOT NULL PRIMARY KEY, follows TEXT, following TEXT);"
+	_, err = db.Exec(usertable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-
+	phototable := "CREATE TABLE IF NOT EXISTS photos (id TEXT NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), photo TEXT, date TEXT);"
+	_, err = db.Exec(phototable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	//create comments table
+	commenttable := "CREATE TABLE IF NOT EXISTS comments (id INTEGER NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (photoid) REFERENCES photos(id), comment NOT NULL TEXT PRIMARY KEY);"
+	_, err = db.Exec(commenttable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	//create ban table
+	bantable := "CREATE TABLE IF NOT EXISTS ban (FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (otheruserid) REFERENCES Users(token));"
+	_, err = db.Exec(bantable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	//create like table
+	liketable := "CREATE TABLE IF NOT EXISTS likes (id INTEGER NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (photoid) REFERENCES photos(id));"
+	_, err = db.Exec(liketable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
 	return &appdbimpl{
 		c: db,
 	}, nil
