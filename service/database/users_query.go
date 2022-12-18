@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func (db *appdbimpl) doLogin(username string) (string, error) {
+func (db *appdbimpl) DoLogin(username string) (string, error) {
 	query := `SELECT token FROM users WHERE username = ?`
 	var token string
 	err := db.c.QueryRow(query, username).Scan(&token)
@@ -14,7 +14,7 @@ func (db *appdbimpl) doLogin(username string) (string, error) {
 	return token, nil
 }
 
-func (db *appdbimpl) followUser(token string, otheruserid string) error {
+func (db *appdbimpl) FollowUser(token string, otheruserid string) error {
 	query := "SELECT  follows FROM users WHERE  token = ?"
 	var follows string
 	err := db.c.QueryRow(query, token).Scan(&follows)
@@ -30,7 +30,7 @@ func (db *appdbimpl) followUser(token string, otheruserid string) error {
 	return nil
 }
 
-func (db *appdbimpl) unfollowUser(token string, otheruserid string) error {
+func (db *appdbimpl) UnfollowUser(token string, otheruserid string) error {
 	query := "SELECT follows fFROMusers  WHERE token = ?"
 	var follows string
 	err := db.c.QueryRow(query, token).Scan(&follows)
@@ -46,7 +46,7 @@ func (db *appdbimpl) unfollowUser(token string, otheruserid string) error {
 	return nil
 }
 
-func (db *appdbimpl) banUser(token string, otheruserid string) error {
+func (db *appdbimpl) BanUser(token string, otheruserid string) error {
 	query := "INSERT INTO banned (token, banned) VALUES (?, ?)"
 	_, err := db.c.Exec(query, token, otheruserid)
 	if err != nil {
@@ -55,7 +55,7 @@ func (db *appdbimpl) banUser(token string, otheruserid string) error {
 	return nil
 }
 
-func (db *appdbimpl) unbanUser(token string, otheruserid string) error {
+func (db *appdbimpl) UnbanUser(token string, otheruserid string) error {
 	query := "DELETE FROM banned WHERE token = ? AND banned = ?"
 	_, err := db.c.Exec(query, token, otheruserid)
 	if err != nil {
@@ -64,7 +64,7 @@ func (db *appdbimpl) unbanUser(token string, otheruserid string) error {
 	return nil
 }
 
-func (db *appdbimpl) setMyUserName(token string, new_username string) error {
+func (db *appdbimpl) SetMyUserName(token string, new_username string) error {
 	query := "UPDATE users SET username = ? WHERE token = ?"
 	_, err := db.c.Exec(query, new_username, token)
 	if err != nil {
@@ -73,7 +73,7 @@ func (db *appdbimpl) setMyUserName(token string, new_username string) error {
 	return nil
 }
 
-func (db *appdbimpl) getUserProfile(token string, userid string) (User, error) {
+func (db *appdbimpl) GetUserProfile(token string, userid string) (User, error) {
 	var user User
 	query := "SELECT username, follows FROM users WHERE username = ?"
 	err := db.c.QueryRow(query, userid).Scan(&user.Username, &user.Follows)
@@ -88,7 +88,7 @@ func (db *appdbimpl) getUserProfile(token string, userid string) (User, error) {
 	return user, nil
 }
 
-func (db *appdbimpl) getUsers(token string, userid string) ([]string, error) {
+func (db *appdbimpl) GetUsers(token string, userid string) ([]string, error) {
 	query := "SELECT username from users WHERE username LIKE ?%"
 	rows, err := db.c.Query(query, userid)
 	if err != nil {
@@ -105,7 +105,7 @@ func (db *appdbimpl) getUsers(token string, userid string) ([]string, error) {
 	}
 	return users, nil
 }
-func (db *appdbimpl) getMyStream(token string) ([]Photo, error) {
+func (db *appdbimpl) GetMyStream(token string) ([]Photo, error) {
 	var follow string
 	var photos []Photo
 	query := "SELECT follows FROM users WHERE token = ?"

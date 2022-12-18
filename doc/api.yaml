@@ -324,7 +324,7 @@ paths:
               type: string
               minLength: 1
               maxLength: 2048
-              pattern: '[A-Za-z0-9_@./#&+-?=$%&()_ ^]$'
+              pattern: '[A-Za-z0-9_@./#&+-?=$%&()_^]$'
               example: "Wow wonderfull picture"
         responses:
           "201":

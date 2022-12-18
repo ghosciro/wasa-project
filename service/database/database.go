@@ -50,22 +50,22 @@ type Photo struct {
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	banUser(token string, otheruserid string) error
-	commentPhoto(token string, photoid string, comment string) (int, error)
-	deletePhoto(token string, photoid string) error
-	doLogin(username string) (string, error)
-	followUser(token string, otheruserid string) error
-	getMyStream(token string) ([]Photo, error)
-	getPhoto(token string, id string) (Photo, error)
-	getUserProfile(token string, userid string) (User, error)
-	getUsers(token string, username string) ([]string, error)
-	likePhoto(token string, photoid string) error
-	setMyUserName(token string, new_username string) error
-	unbanUser(token string, otheruserid string) error
-	unccomentPhoto(token string, photoid string, comment int) error
-	unfollowUser(token string, otheruserid string) error
-	unlikePhoto(token string, photoid string) error
-	uploadPhoto(token string, photo string) (string, error)
+	BanUser(token string, otheruserid string) error
+	CommentPhoto(token string, photoid string, comment string) (int, error)
+	DeletePhoto(token string, photoid string) error
+	DoLogin(username string) (string, error)
+	FollowUser(token string, otheruserid string) error
+	GetMyStream(token string) ([]Photo, error)
+	GetPhoto(token string, id string) (Photo, error)
+	GetUserProfile(token string, userid string) (User, error)
+	GetUsers(token string, username string) ([]string, error)
+	LikePhoto(token string, photoid string) error
+	SetMyUserName(token string, new_username string) error
+	UnbanUser(token string, otheruserid string) error
+	UncommentPhoto(token string, photoid string, comment int) error
+	UnfollowUser(token string, otheruserid string) error
+	UnlikePhoto(token string, photoid string) error
+	UploadPhoto(token string, photo string) (string, error)
 }
 
 type appdbimpl struct {

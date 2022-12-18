@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (db *appdbimpl) uploadPhoto(token string, photo string) (string, error) {
+func (db *appdbimpl) UploadPhoto(token string, photo string) (string, error) {
 	query := `INSERT INTO photos (id,photo, date) VALUES (?,?, ?)`
 	//check if photo is a valid base64 string
 	matched, err := regexp.MatchString(`data:image\/[^;]+;base64[^"]+`, photo)
@@ -29,7 +29,7 @@ func (db *appdbimpl) uploadPhoto(token string, photo string) (string, error) {
 	return id, nil
 }
 
-func (db *appdbimpl) deletePhoto(token string, photoid string) error {
+func (db *appdbimpl) DeletePhoto(token string, photoid string) error {
 	query := `DELETE FROM photos WHERE id = ?`
 	_, err := db.c.Exec(query, photoid)
 	if err != nil {
@@ -38,7 +38,7 @@ func (db *appdbimpl) deletePhoto(token string, photoid string) error {
 	return nil
 }
 
-func (db *appdbimpl) getPhoto(token string, photoid string) (Photo, error) {
+func (db *appdbimpl) GetPhoto(token string, photoid string) (Photo, error) {
 	query := `SELECT photo FROM photos WHERE id = ?`
 	var photo Photo
 	err := db.c.QueryRow(query, photoid).Scan(&photo.Photo)
@@ -48,7 +48,7 @@ func (db *appdbimpl) getPhoto(token string, photoid string) (Photo, error) {
 	return photo, nil
 }
 
-func (db *appdbimpl) likePhoto(token string, photoid string) error {
+func (db *appdbimpl) LikePhoto(token string, photoid string) error {
 	query := `INSERT INTO likes (token, photoid) VALUES (?,?)`
 	_, err := db.c.Exec(query, token, photoid)
 	if err != nil {
@@ -57,7 +57,7 @@ func (db *appdbimpl) likePhoto(token string, photoid string) error {
 	return nil
 }
 
-func (db *appdbimpl) unlikePhoto(token string, photoid string) error {
+func (db *appdbimpl) UnlikePhoto(token string, photoid string) error {
 	query := `DELETE FROM likes WHERE token = ? AND photoid = ?`
 	_, err := db.c.Exec(query, token, photoid)
 	if err != nil {
