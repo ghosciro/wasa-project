@@ -26,7 +26,7 @@ type WebAPIConfiguration struct {
 	}
 	Debug bool
 	DB    struct {
-		Filename string `sql3.db"`
+		Filename string `conf:"sql3.db"`
 	}
 }
 

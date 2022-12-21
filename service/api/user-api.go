@@ -2,32 +2,21 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
-type User struct {
-	Username string `json:"Username"`
-}
-
 func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	var user User
-	//get username from body
-	err := json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println(user.Username)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	//get username from query
+	var username string
+	err := json.NewDecoder(r.Body).Decode(&username)
 	//get token from db
-	print(user.Username)
-	token, error := rt.db.DoLogin(user.Username)
-
-	print(token)
-	if error != nil {
+	print(username + "\n")
+	token, err := rt.db.DoLogin(username)
+	print("token:", token)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -41,7 +30,18 @@ func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
+	print(ps)
+	username := ps.ByName("username")
+	//get usernames from db
+	print(username + "\n")
+	usernames, err := rt.db.GetUsers("", username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	print("usernames:", usernames)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(usernames)
 }
 
 func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {

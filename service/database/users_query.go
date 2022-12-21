@@ -2,28 +2,40 @@ package database
 
 import (
 	"crypto/sha1"
+	"fmt"
 	"strings"
 )
 
 func (db *appdbimpl) DoLogin(username string) (string, error) {
-	query := `SELECT token FROM users WHERE username = ?`
+	/*query := `SELECT token FROM users WHERE username = ?`
 	var token string
 	row := db.c.QueryRow(query, username)
+	// check if user exists
+	// if not
+	// create it
+
 	if row == nil {
-		query = `INSERT INTO users (username,token) VALUES (?,?) )`
-		hash := sha1.Sum([]byte(username))
-		token := string(hash[:])
+		print("user does not exist creating it")
+		query = `INSERT INTO users (username, token) VALUES (?, ?)`
+		token = fmt.Sprintf("%x", sha1.Sum([]byte(username)))
 		_, err := db.c.Exec(query, username, token)
 		if err != nil {
 			return token, err
 		}
 		return token, nil
 	}
+
+	// else
+
 	err := row.Scan(&token)
 	if err != nil {
 		return token, err
 	}
-	return token, nil
+	return token, nil*/
+	token := fmt.Sprintf("%x", sha1.Sum([]byte(username)))
+	_, _ = db.c.Exec(`INSERT INTO users (username, token) VALUES (?, ?) ON CONFLICT DO NOTHING`, username, token)
+	db.c.QueryRow(`SELECT token FROM users WHERE username = ?`, username).Scan(&token)
+	return string(token), nil
 }
 
 func (db *appdbimpl) FollowUser(token string, otheruserid string) error {
