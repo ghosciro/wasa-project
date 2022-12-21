@@ -1,13 +1,25 @@
 package database
 
 import (
+	"crypto/sha1"
 	"strings"
 )
 
 func (db *appdbimpl) DoLogin(username string) (string, error) {
 	query := `SELECT token FROM users WHERE username = ?`
 	var token string
-	err := db.c.QueryRow(query, username).Scan(&token)
+	row := db.c.QueryRow(query, username)
+	if row == nil {
+		query = `INSERT INTO users (username,token) VALUES (?,?) )`
+		hash := sha1.Sum([]byte(username))
+		token := string(hash[:])
+		_, err := db.c.Exec(query, username, token)
+		if err != nil {
+			return token, err
+		}
+		return token, nil
+	}
+	err := row.Scan(&token)
 	if err != nil {
 		return token, err
 	}

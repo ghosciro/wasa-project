@@ -168,7 +168,7 @@ paths:
         "204":
           description: 
             "user name changed"
-  /user/{username}/following/{otherusername}:
+  /users/{username}/following/{otherusername}:
     parameters:
         - $ref: "#/components/parameters/othersusername"
         - $ref: "#/components/parameters/username"
@@ -192,7 +192,7 @@ paths:
       responses:
         "204":
           description: "user correctly removed from the following list"
-  /user/{username}/banned/{otherusername}: 
+  /users/{username}/banned/{otherusername}: 
     parameters:
         - $ref: "#/components/parameters/othersusername"
         - $ref: "#/components/parameters/username"
@@ -342,7 +342,7 @@ paths:
      delete:
           tags: [Photos]
           summary: "delete a comment"
-          operationId: unccomentPhoto
+          operationId: uncommentPhoto
           description: |
             "takes the Id of a Picture ,
             the token of the logged in user , 

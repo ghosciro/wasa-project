@@ -80,30 +80,68 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 	//create user table
-	usertable := "CREATE TABLE IF NOT EXISTS Users (token TEXT NOT NULL PRIMARY KEY, username TEXT NOT NULL PRIMARY KEY, follows TEXT, following TEXT);"
+	usertable := `
+		CREATE TABLE IF NOT EXISTS Users
+		(token TEXT NOT NULL,
+		username TEXT NOT NULL ,
+		follows TEXT, following TEXT,
+		CONSTRAINT userPK PRIMARY KEY (token, username));`
 	_, err = db.Exec(usertable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	phototable := "CREATE TABLE IF NOT EXISTS photos (id TEXT NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), photo TEXT, date TEXT);"
+	phototable := `
+		CREATE TABLE IF NOT EXISTS photos  
+		(
+		 id TEXT NOT NULL PRIMARY KEY, 
+		 token TEXT NOT NULL,
+		 photo TEXT DEFAULT "",
+		 date TEXT DEFAULT "",			
+		 FOREIGN KEY (token) REFERENCES Users(token)
+		);
+		`
 	_, err = db.Exec(phototable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
 	//create comments table
-	commenttable := "CREATE TABLE IF NOT EXISTS comments (id INTEGER NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (photoid) REFERENCES photos(id), comment NOT NULL TEXT PRIMARY KEY);"
+	commenttable := `
+	CREATE TABLE IF NOT EXISTS comments
+	(id INTEGER NOT NULL ,
+	comment TEXT NOT NULL,
+	photoid TEXT NOT NULL,
+	token TEXT NOT NULL,
+	FOREIGN KEY (token) REFERENCES Users(token) ,
+	FOREIGN KEY (photoid) REFERENCES photos(id),
+	CONSTRAINT commPK PRIMARY KEY (id))
+	;`
 	_, err = db.Exec(commenttable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
 	//create ban table
-	bantable := "CREATE TABLE IF NOT EXISTS ban (FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (otheruserid) REFERENCES Users(token));"
+	bantable := `
+	CREATE TABLE IF NOT EXISTS ban
+	 (
+	  token TEXT NOT NULL,
+	  otheruserid TEXT NOT NULL,
+	  FOREIGN KEY (otheruserid) REFERENCES Users(token),
+	  FOREIGN KEY (token) REFERENCES Users(token),
+	  CONSTRAINT banPK PRIMARY KEY (token, otheruserid)
+	  );`
 	_, err = db.Exec(bantable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
 	//create like table
-	liketable := "CREATE TABLE IF NOT EXISTS likes (id INTEGER NOT NULL PRIMARY KEY, FOREIGN KEY (token) REFERENCES Users(token), FOREIGN KEY (photoid) REFERENCES photos(id));"
+	liketable := `CREATE TABLE IF NOT EXISTS likes
+		(id INTEGER NOT NULL,
+		token TEXT NOT NULL ,
+		photoid TEXT NOT NULL,
+		FOREIGN KEY (photoid) REFERENCES photos(id),
+		FOREIGN KEY (token) REFERENCES Users(token),
+		CONSTRAINT likePK PRIMARY KEY (token, photoid)
+		);`
 	_, err = db.Exec(liketable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
