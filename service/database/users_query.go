@@ -7,34 +7,15 @@ import (
 )
 
 func (db *appdbimpl) DoLogin(username string) (string, error) {
-	/*query := `SELECT token FROM users WHERE username = ?`
-	var token string
-	row := db.c.QueryRow(query, username)
-	// check if user exists
-	// if not
-	// create it
-
-	if row == nil {
-		print("user does not exist creating it")
-		query = `INSERT INTO users (username, token) VALUES (?, ?)`
-		token = fmt.Sprintf("%x", sha1.Sum([]byte(username)))
-		_, err := db.c.Exec(query, username, token)
-		if err != nil {
-			return token, err
-		}
-		return token, nil
-	}
-
-	// else
-
-	err := row.Scan(&token)
-	if err != nil {
-		return token, err
-	}
-	return token, nil*/
 	token := fmt.Sprintf("%x", sha1.Sum([]byte(username)))
-	_, _ = db.c.Exec(`INSERT INTO users (username, token) VALUES (?, ?) ON CONFLICT DO NOTHING`, username, token)
-	db.c.QueryRow(`SELECT token FROM users WHERE username = ?`, username).Scan(&token)
+	_, err := db.c.Exec(`INSERT INTO users (username, token) VALUES (?, ?) ON CONFLICT DO NOTHING`, username, token)
+	if err != nil {
+		return "", err
+	}
+	err = db.c.QueryRow(`SELECT token FROM users WHERE username = ?`, username).Scan(&token)
+	if err != nil {
+		return "", err
+	}
 	return string(token), nil
 }
 
@@ -88,22 +69,27 @@ func (db *appdbimpl) UnbanUser(token string, otheruserid string) error {
 	return nil
 }
 
-func (db *appdbimpl) SetMyUserName(token string, new_username string) error {
-	query := "UPDATE users SET username = ? WHERE token = ?"
-	_, err := db.c.Exec(query, new_username, token)
+func (db *appdbimpl) SetMyUserName(token string, new_username string) (string, error) {
+	query := "UPDATE users SET username = ? , token = ? WHERE token = ?"
+	new_token := fmt.Sprintf("%x", sha1.Sum([]byte(new_username)))
+	_, err := db.c.Exec(query, new_username, new_token, token)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return new_token, nil
 }
 
 func (db *appdbimpl) GetUserProfile(token string, userid string) (User, error) {
 	var user User
-	query := "SELECT username, follows FROM users WHERE username = ?"
-	err := db.c.QueryRow(query, userid).Scan(&user.Username, &user.Follows)
+	var Follows string
+	var following string
+	query := "SELECT username, follows,following  FROM users WHERE username = ?"
+	err := db.c.QueryRow(query, userid).Scan(&user.Username, &Follows, &following)
 	if err != nil {
 		return user, err
 	}
+	user.Follows = strings.Split(Follows, ",")
+	user.Following = strings.Split(following, ",")
 	query = "SELECT COUNT(*) FROM photos WHERE token = (SELECT token FROM users WHERE username = ?)"
 	err = db.c.QueryRow(query, userid).Scan(&user.Nphotos)
 	if err != nil {
@@ -113,7 +99,8 @@ func (db *appdbimpl) GetUserProfile(token string, userid string) (User, error) {
 }
 
 func (db *appdbimpl) GetUsers(token string, userid string) ([]string, error) {
-	query := "SELECT username from users WHERE username LIKE ?%"
+	query := "SELECT username from users WHERE username LIKE ? "
+	userid += "%"
 	rows, err := db.c.Query(query, userid)
 	if err != nil {
 		return nil, err
@@ -129,6 +116,7 @@ func (db *appdbimpl) GetUsers(token string, userid string) ([]string, error) {
 	}
 	return users, nil
 }
+
 func (db *appdbimpl) GetMyStream(token string) ([]Photo, error) {
 	var follow string
 	var photos []Photo
@@ -163,4 +151,22 @@ func (db *appdbimpl) GetMyStream(token string) ([]Photo, error) {
 	}
 	return photos, nil
 
+}
+
+func (db *appdbimpl) GetBanned(username string) ([]string, error) {
+	query := "SELECT otheruserid FROM bans WHERE token = (SELECT token FROM users WHERE username = ?)"
+	rows, err := db.c.Query(query, username)
+	if err != nil {
+		return nil, err
+	}
+	var banned []string
+	for rows.Next() {
+		var user string
+		err = rows.Scan(&user)
+		if err != nil {
+			return nil, err
+		}
+		banned = append(banned, user)
+	}
+	return banned, nil
 }

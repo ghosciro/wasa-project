@@ -10,19 +10,15 @@ import (
 
 func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	//get username from query
-	var username string
-	err := json.NewDecoder(r.Body).Decode(&username)
+	username := r.URL.Query().Get("username")
 	//get token from db
-	print(username + "\n")
 	token, err := rt.db.DoLogin(username)
-	print("token:", token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(token)
-
 }
 
 func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
@@ -30,25 +26,43 @@ func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	print(ps)
-	username := ps.ByName("username")
+	username := r.URL.Query().Get("username")
 	//get usernames from db
-	print(username + "\n")
 	usernames, err := rt.db.GetUsers("", username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	print("usernames:", usernames)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(usernames)
 }
 
 func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	username := ps.ByName("id")
+	print(username + "\n")
+	//get user from db
+	user, err := rt.db.GetUserProfile("", username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	//print user
 
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(user)
 }
 
 func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	//read new username from query
+	new_username := r.URL.Query().Get("username")
+	//insert new username in db
+	token, err := rt.db.SetMyUserName("", new_username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(token)
 }
 
 func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {

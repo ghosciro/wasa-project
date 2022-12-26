@@ -38,7 +38,7 @@ import (
 
 type User struct {
 	Username  string
-	Followers []string
+	Following []string
 	Follows   []string
 	Nphotos   int
 }
@@ -60,12 +60,13 @@ type AppDatabase interface {
 	GetUserProfile(token string, userid string) (User, error)
 	GetUsers(token string, username string) ([]string, error)
 	LikePhoto(token string, photoid string) error
-	SetMyUserName(token string, new_username string) error
+	SetMyUserName(token string, new_username string) (string, error)
 	UnbanUser(token string, otheruserid string) error
 	UncommentPhoto(token string, photoid string, comment int) error
 	UnfollowUser(token string, otheruserid string) error
 	UnlikePhoto(token string, photoid string) error
 	UploadPhoto(token string, photo string) (string, error)
+	GetBanned(username string) ([]string, error)
 }
 
 type appdbimpl struct {
@@ -84,7 +85,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 		CREATE TABLE IF NOT EXISTS Users
 		(token TEXT NOT NULL,
 		username TEXT NOT NULL ,
-		follows TEXT, following TEXT,
+		follows TEXT DEFAULT "", 
+		following TEXT DEFAULT "",
 		CONSTRAINT userPK PRIMARY KEY (token, username));`
 	_, err = db.Exec(usertable)
 	if err != nil {
