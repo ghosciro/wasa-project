@@ -37,10 +37,10 @@ import (
 )
 
 type User struct {
-	Username  string
-	Following []string
-	Follows   []string
-	Nphotos   int
+	Username string
+	Follows  []string
+	Follower []string
+	Nphotos  int
 }
 type Photo struct {
 	Id    int64
@@ -50,23 +50,24 @@ type Photo struct {
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	BanUser(token string, otheruserid string) error
-	CommentPhoto(token string, photoid string, comment string) (int, error)
-	DeletePhoto(token string, photoid string) error
+	BanUser(username string, otherusername string) error
+	CommentPhoto(username string, photoid string, comment string) (int, error)
+	DeletePhoto(photoid string) error
 	DoLogin(username string) (string, error)
-	FollowUser(token string, otheruserid string) error
-	GetMyStream(token string) ([]Photo, error)
-	GetPhoto(token string, id string) (Photo, error)
-	GetUserProfile(token string, userid string) (User, error)
-	GetUsers(token string, username string) ([]string, error)
-	LikePhoto(token string, photoid string) error
-	SetMyUserName(token string, new_username string) (string, error)
-	UnbanUser(token string, otheruserid string) error
-	UncommentPhoto(token string, photoid string, comment int) error
-	UnfollowUser(token string, otheruserid string) error
-	UnlikePhoto(token string, photoid string) error
-	UploadPhoto(token string, photo string) (string, error)
+	FollowUser(username string, otherusername string) error
+	GetMyStream(username string) ([]Photo, error)
+	GetPhoto(id string) (Photo, error)
+	GetUserProfile(userid string) (User, error)
+	GetUsers(username string) ([]string, error)
+	LikePhoto(username string, photoid string) error
+	SetMyUserName(username string, new_username string) error
+	UnbanUser(username string, otherusername string) error
+	UncommentPhoto(username string, photoid string, comment int) error
+	UnfollowUser(username string, otherusername string) error
+	UnlikePhoto(username string, photoid string) error
+	UploadPhoto(username string, photo string) (string, error)
 	GetBanned(username string) ([]string, error)
+	Exists(username string) (bool, error)
 }
 
 type appdbimpl struct {
@@ -83,23 +84,38 @@ func New(db *sql.DB) (AppDatabase, error) {
 	//create user table
 	usertable := `
 		CREATE TABLE IF NOT EXISTS Users
-		(token TEXT NOT NULL,
+		(
 		username TEXT NOT NULL ,
-		follows TEXT DEFAULT "", 
-		following TEXT DEFAULT "",
-		CONSTRAINT userPK PRIMARY KEY (token, username));`
+		nphotos INTEGER DEFAULT 0,
+		CONSTRAINT userPK PRIMARY KEY (username));`
+
 	_, err = db.Exec(usertable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
+	//create follow table
+	followtable := `
+		CREATE TABLE IF NOT EXISTS Follows
+		(
+		followed TEXT NOT NULL default "",
+		follower TEXT NOT NULL default "", 
+		CONSTRAINT followPK PRIMARY KEY (followed, follower),
+		FOREIGN KEY (followed) REFERENCES Users(username),
+		FOREIGN KEY (follower) REFERENCES Users(username));`
+	_, err = db.Exec(followtable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+	//create photo table
+
 	phototable := `
 		CREATE TABLE IF NOT EXISTS photos  
 		(
 		 id TEXT NOT NULL PRIMARY KEY, 
-		 token TEXT NOT NULL,
+		 username TEXT NOT NULL,
 		 photo TEXT DEFAULT "",
 		 date TEXT DEFAULT "",			
-		 FOREIGN KEY (token) REFERENCES Users(token)
+		 FOREIGN KEY (username) REFERENCES Users(username)
 		);
 		`
 	_, err = db.Exec(phototable)
@@ -112,8 +128,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 	(id INTEGER NOT NULL ,
 	comment TEXT NOT NULL,
 	photoid TEXT NOT NULL,
-	token TEXT NOT NULL,
-	FOREIGN KEY (token) REFERENCES Users(token) ,
+	username TEXT NOT NULL,
+	FOREIGN KEY (username) REFERENCES Users(username) ,
 	FOREIGN KEY (photoid) REFERENCES photos(id),
 	CONSTRAINT commPK PRIMARY KEY (id))
 	;`
@@ -125,11 +141,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 	bantable := `
 	CREATE TABLE IF NOT EXISTS ban
 	 (
-	  token TEXT NOT NULL,
-	  otheruserid TEXT NOT NULL,
-	  FOREIGN KEY (otheruserid) REFERENCES Users(token),
-	  FOREIGN KEY (token) REFERENCES Users(token),
-	  CONSTRAINT banPK PRIMARY KEY (token, otheruserid)
+	  banner TEXT NOT NULL,
+	  banned TEXT NOT NULL,
+	  FOREIGN KEY (banner) REFERENCES Users(username),
+	  FOREIGN KEY (banned) REFERENCES Users(username),
+	  CONSTRAINT banPK PRIMARY KEY (banner, banned)
 	  );`
 	_, err = db.Exec(bantable)
 	if err != nil {
@@ -138,16 +154,25 @@ func New(db *sql.DB) (AppDatabase, error) {
 	//create like table
 	liketable := `CREATE TABLE IF NOT EXISTS likes
 		(id INTEGER NOT NULL,
-		token TEXT NOT NULL ,
+		username TEXT NOT NULL ,
 		photoid TEXT NOT NULL,
 		FOREIGN KEY (photoid) REFERENCES photos(id),
-		FOREIGN KEY (token) REFERENCES Users(token),
-		CONSTRAINT likePK PRIMARY KEY (token, photoid)
+		FOREIGN KEY (username) REFERENCES Users(username),
+		CONSTRAINT likePK PRIMARY KEY (username, photoid)
 		);`
 	_, err = db.Exec(liketable)
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
+	tokentable := `Create table if not exists tokens
+		(username TEXT NOT NULL,
+		token TEXT NOT NULL,
+		CONSTRAINT tokenPK PRIMARY KEY (username));`
+	_, err = db.Exec(tokentable)
+	if err != nil {
+		return nil, fmt.Errorf("error creating database structure: %w", err)
+	}
+
 	return &appdbimpl{
 		c: db,
 	}, nil

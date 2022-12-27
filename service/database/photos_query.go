@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (db *appdbimpl) UploadPhoto(token string, photo string) (string, error) {
+func (db *appdbimpl) UploadPhoto(username string, photo string) (string, error) {
 	query := `INSERT INTO photos (id,photo, date) VALUES (?,?, ?)`
 	//check if photo is a valid base64 string
 	matched, err := regexp.MatchString(`data:image\/[^;]+;base64[^"]+`, photo)
@@ -18,7 +18,7 @@ func (db *appdbimpl) UploadPhoto(token string, photo string) (string, error) {
 		return "", errors.New("invalid base64 string")
 	}
 	//generate id
-	hash := sha1.Sum([]byte(token + time.Now().String()))
+	hash := sha1.Sum([]byte(username + time.Now().String()))
 	id := string(hash[:])
 
 	//insert into db
@@ -29,7 +29,7 @@ func (db *appdbimpl) UploadPhoto(token string, photo string) (string, error) {
 	return id, nil
 }
 
-func (db *appdbimpl) DeletePhoto(token string, photoid string) error {
+func (db *appdbimpl) DeletePhoto(photoid string) error {
 	query := `DELETE FROM photos WHERE id = ?`
 	_, err := db.c.Exec(query, photoid)
 	if err != nil {
@@ -38,7 +38,7 @@ func (db *appdbimpl) DeletePhoto(token string, photoid string) error {
 	return nil
 }
 
-func (db *appdbimpl) GetPhoto(token string, photoid string) (Photo, error) {
+func (db *appdbimpl) GetPhoto(photoid string) (Photo, error) {
 	query := `SELECT photo FROM photos WHERE id = ?`
 	var photo Photo
 	err := db.c.QueryRow(query, photoid).Scan(&photo.Photo)
@@ -48,18 +48,18 @@ func (db *appdbimpl) GetPhoto(token string, photoid string) (Photo, error) {
 	return photo, nil
 }
 
-func (db *appdbimpl) LikePhoto(token string, photoid string) error {
-	query := `INSERT INTO likes (token, photoid) VALUES (?,?)`
-	_, err := db.c.Exec(query, token, photoid)
+func (db *appdbimpl) LikePhoto(username string, photoid string) error {
+	query := `INSERT INTO likes (username, photoid) VALUES (?,?)`
+	_, err := db.c.Exec(query, username, photoid)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) UnlikePhoto(token string, photoid string) error {
-	query := `DELETE FROM likes WHERE token = ? AND photoid = ?`
-	_, err := db.c.Exec(query, token, photoid)
+func (db *appdbimpl) UnlikePhoto(username string, photoid string) error {
+	query := `DELETE FROM likes WHERE(username = ? AND photoid = ?`
+	_, err := db.c.Exec(query, username, photoid)
 	if err != nil {
 		return err
 	}

@@ -142,7 +142,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
   /users/{username}/options:
-    post:
+    put:
       parameters:
         - $ref: '#/components/parameters/username'
       tags: ["User"]

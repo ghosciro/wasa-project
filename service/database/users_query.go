@@ -1,104 +1,171 @@
 package database
 
 import (
-	"crypto/sha1"
-	"fmt"
+	"errors"
 	"strings"
 )
 
 func (db *appdbimpl) DoLogin(username string) (string, error) {
-	token := fmt.Sprintf("%x", sha1.Sum([]byte(username)))
-	_, err := db.c.Exec(`INSERT INTO users (username, token) VALUES (?, ?) ON CONFLICT DO NOTHING`, username, token)
+	query := "INSERT INTO users (username,nphotos) VALUES (?, ?) on conflict do nothing"
+	_, err := db.c.Exec(query, username, 0)
 	if err != nil {
 		return "", err
 	}
-	err = db.c.QueryRow(`SELECT token FROM users WHERE username = ?`, username).Scan(&token)
+	row, err := db.c.Query("select token from tokens where username = ?", username)
+	//check if token exists
+	//if exists, return error "already logged in"
+	//else generate token and insert into db
+	if err != nil {
+		print("error here 2")
+		return "", err
+	}
+
+	if row == nil {
+		return "", errors.New("already logged in")
+	}
+
+	//generate 20 random character
+	token := Generate_random_string(30)
+	query = "INSERT INTO tokens(username, token) VALUES (?, ?)"
+	_, err = db.c.Exec(query, username, token)
 	if err != nil {
 		return "", err
 	}
-	return string(token), nil
+	return token, nil
 }
 
-func (db *appdbimpl) FollowUser(token string, otheruserid string) error {
-	query := "SELECT  follows FROM users WHERE  token = ?"
-	var follows string
-	err := db.c.QueryRow(query, token).Scan(&follows)
+func (db *appdbimpl) FollowUser(username string, otherusername string) error {
+	exists1, err := db.Exists(otherusername)
+	exists2, err2 := db.Exists(username)
 	if err != nil {
 		return err
 	}
-	follows += otheruserid + ","
-	query = "update users set follows = ? where token = ?"
-	_, err = db.c.Exec(query, follows, token)
-	if err != nil {
-		return err
+	if err2 != nil {
+		return err2
 	}
-	return nil
-}
+	if !exists1 || !exists2 {
+		return errors.New("user does not exist")
+	}
 
-func (db *appdbimpl) UnfollowUser(token string, otheruserid string) error {
-	query := "SELECT follows fFROMusers  WHERE token = ?"
-	var follows string
-	err := db.c.QueryRow(query, token).Scan(&follows)
-	if err != nil {
-		return err
-	}
-	follows = strings.Replace(follows, otheruserid+",", "", 1)
-	query = "update users set follows = ? where token = ?"
-	_, err = db.c.Exec(query, follows, token)
+	query := "INSERT INTO Follows(followed, follower) VALUES (?, ?) on conflict do nothing"
+	_, err = db.c.Exec(query, otherusername, username)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) BanUser(token string, otheruserid string) error {
-	query := "INSERT INTO banned (token, banned) VALUES (?, ?)"
-	_, err := db.c.Exec(query, token, otheruserid)
+func (db *appdbimpl) UnfollowUser(username string, otherusername string) error {
+	exists1, err := db.Exists(otherusername)
+	exists2, err2 := db.Exists(username)
+	if err != nil {
+		return err
+	}
+	if err2 != nil {
+		return err2
+	}
+	if !exists1 || !exists2 {
+		return errors.New("user does not exist")
+	}
+	query := "DELETE FROM Follows WHERE followed = ? AND follower = ?"
+	_, err = db.c.Exec(query, otherusername, username)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) UnbanUser(token string, otheruserid string) error {
-	query := "DELETE FROM banned WHERE token = ? AND banned = ?"
-	_, err := db.c.Exec(query, token, otheruserid)
+func (db *appdbimpl) BanUser(username string, otherusername string) error {
+	exists1, err := db.Exists(otherusername)
+	exists2, err2 := db.Exists(username)
+	if err != nil {
+		return err
+	}
+	if err2 != nil {
+		return err2
+	}
+	if !exists1 || !exists2 {
+		return errors.New("user does not exist")
+	}
+
+	query := "INSERT INTO ban (banner, banned) VALUES (?, ?)"
+	_, err = db.c.Exec(query, username, otherusername)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *appdbimpl) SetMyUserName(token string, new_username string) (string, error) {
-	query := "UPDATE users SET username = ? , token = ? WHERE token = ?"
-	new_token := fmt.Sprintf("%x", sha1.Sum([]byte(new_username)))
-	_, err := db.c.Exec(query, new_username, new_token, token)
+func (db *appdbimpl) UnbanUser(username string, otherusername string) error {
+
+	exists1, err := db.Exists(otherusername)
+	exists2, err2 := db.Exists(username)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return new_token, nil
+	if err2 != nil {
+		return err2
+	}
+	if !exists1 || !exists2 {
+		return errors.New("user does not exist")
+	}
+
+	query := "DELETE FROM ban WHERE banner = ? AND banned = ?"
+	_, err = db.c.Exec(query, username, otherusername)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (db *appdbimpl) GetUserProfile(token string, userid string) (User, error) {
+
+func (db *appdbimpl) GetUserProfile(username string) (User, error) {
+	exists, err := db.Exists(username)
+	if err != nil {
+		return User{}, err
+	}
+	if !exists {
+		return User{}, errors.New("user does not exist")
+	}
+
 	var user User
-	var Follows string
-	var following string
-	query := "SELECT username, follows,following  FROM users WHERE username = ?"
-	err := db.c.QueryRow(query, userid).Scan(&user.Username, &Follows, &following)
+
+	query := "SELECT username, nphotos  FROM users WHERE username = ?"
+	err = db.c.QueryRow(query, username).Scan(&user.Username, &user.Nphotos)
 	if err != nil {
 		return user, err
 	}
-	user.Follows = strings.Split(Follows, ",")
-	user.Following = strings.Split(following, ",")
-	query = "SELECT COUNT(*) FROM photos WHERE token = (SELECT token FROM users WHERE username = ?)"
-	err = db.c.QueryRow(query, userid).Scan(&user.Nphotos)
+
+	query = "SELECT follower FROM Follows WHERE followed = ?"
+	row, err := db.c.Query(query, username)
 	if err != nil {
 		return user, err
+	}
+	for row.Next() {
+		var follower string
+		err = row.Scan(&follower)
+		if err != nil {
+			return user, err
+		}
+		user.Follower = append(user.Follower, follower)
+	}
+	query = "SELECT followed FROM Follows WHERE follower = ?"
+	row, err = db.c.Query(query, username)
+	if err != nil {
+		return user, err
+	}
+	for row.Next() {
+		var followed string
+		err = row.Scan(&followed)
+		if err != nil {
+			return user, err
+		}
+		user.Follows = append(user.Follows, followed)
 	}
 	return user, nil
 }
 
-func (db *appdbimpl) GetUsers(token string, userid string) ([]string, error) {
+func (db *appdbimpl) GetUsers(userid string) ([]string, error) {
 	query := "SELECT username from users WHERE username LIKE ? "
 	userid += "%"
 	rows, err := db.c.Query(query, userid)
@@ -117,17 +184,17 @@ func (db *appdbimpl) GetUsers(token string, userid string) ([]string, error) {
 	return users, nil
 }
 
-func (db *appdbimpl) GetMyStream(token string) ([]Photo, error) {
+func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 	var follow string
 	var photos []Photo
-	query := "SELECT follows FROM users WHERE token = ?"
-	err := db.c.QueryRow(query, token).Scan(&follow)
+	query := "SELECT follows FROM users WHERE username = ?"
+	err := db.c.QueryRow(query, username).Scan(&follow)
 	if err != nil {
 		return photos, err
 	}
 	followers := strings.Split(follow, ",")
 	for _, follower := range followers {
-		query := "SELECT id, photo, date FROM photos WHERE token = (SELECT token FROM users WHERE username = ? )"
+		query := "SELECT id, photo, date FROM photos WHERE username = (SELECT username FROM users WHERE username = ? )"
 		rows, err := db.c.Query(query, follower)
 		if err != nil {
 			return photos, err
@@ -154,7 +221,7 @@ func (db *appdbimpl) GetMyStream(token string) ([]Photo, error) {
 }
 
 func (db *appdbimpl) GetBanned(username string) ([]string, error) {
-	query := "SELECT otheruserid FROM bans WHERE token = (SELECT token FROM users WHERE username = ?)"
+	query := "SELECT banned FROM ban WHERE banner = ?"
 	rows, err := db.c.Query(query, username)
 	if err != nil {
 		return nil, err

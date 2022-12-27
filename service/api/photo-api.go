@@ -23,7 +23,7 @@ func (rt *_router) GetPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 	//
-	Picture, err := rt.db.GetPhoto(user, photo)
+	Picture, err := rt.db.GetPhoto(photo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
