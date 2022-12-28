@@ -43,7 +43,7 @@ type User struct {
 	Nphotos  int
 }
 type Photo struct {
-	Id    int64
+	Id    string
 	Photo string
 	Date  string
 }
@@ -68,6 +68,7 @@ type AppDatabase interface {
 	UploadPhoto(username string, photo string) (string, error)
 	GetBanned(username string) ([]string, error)
 	Exists(username string) (bool, error)
+	GetUserPhotos(username string) ([]string, error)
 }
 
 type appdbimpl struct {
@@ -111,11 +112,12 @@ func New(db *sql.DB) (AppDatabase, error) {
 	phototable := `
 		CREATE TABLE IF NOT EXISTS photos  
 		(
-		 id TEXT NOT NULL PRIMARY KEY, 
+		 id TEXT NOT NULL , 
 		 username TEXT NOT NULL,
 		 photo TEXT DEFAULT "",
 		 date TEXT DEFAULT "",			
 		 FOREIGN KEY (username) REFERENCES Users(username)
+		 CONSTRAINT photoPK PRIMARY KEY (id, username)
 		);
 		`
 	_, err = db.Exec(phototable)

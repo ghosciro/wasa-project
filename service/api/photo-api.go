@@ -4,25 +4,64 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"io/ioutil"
+
+	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) GetPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	//read from the request the token and the photo id
-	user := ps.ByName("user")
-	photo := ps.ByName("photoid")
+	user := ps.ByName("id")
 
-	//check if the user is banned
-	banned, err := rt.checkban(user, user)
+	Picture, err := rt.db.GetUserPhotos(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if banned {
-		http.Error(w, "user is banned", http.StatusBadRequest)
+	//send the photo
+	err = json.NewEncoder(w).Encode(Picture)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	//
+}
+
+func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	print("upload photo:")
+	//read from the request the token and the photo id
+	user := ps.ByName("id")
+	photo, err := ioutil.ReadAll(r.Body)
+	photo_r := string(photo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//add the photo to the database
+	id, err := rt.db.UploadPhoto(user, photo_r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	//send the photo id
+	json.NewEncoder(w).Encode(id)
+	json.NewEncoder(w).Encode(user)
+}
+
+func (rt *_router) DeleteUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	//read from the request the token and the photo id
+	photo := ps.ByName("photoid")
+	//delete the photo from the database
+	err := rt.db.DeletePhoto(photo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+func (rt *_router) GetUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	//read from the request the token and the photo id
+	photo := ps.ByName("photoid")
+	//get the photo from the database
 	Picture, err := rt.db.GetPhoto(photo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -36,29 +75,7 @@ func (rt *_router) GetPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 }
 
-func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	//read from the request the token and the photo id
-	user := ps.ByName("user")
-	var photo string
-	err := json.NewDecoder(r.Body).Decode(&photo)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	//add the photo to the database
-	id, err := rt.db.UploadPhoto(user, photo)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	//send the photo id
-	err = json.NewEncoder(w).Encode(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-}
-
+/*
 func (rt *_router) checkban(token string, otheruserid string) (bool, error) {
 	banned_users, err := rt.db.GetBanned(otheruserid)
 	if err != nil {
@@ -71,3 +88,4 @@ func (rt *_router) checkban(token string, otheruserid string) (bool, error) {
 	}
 	return false, nil
 }
+*/
