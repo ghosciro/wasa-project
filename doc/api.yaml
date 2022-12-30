@@ -351,8 +351,6 @@ paths:
           responses:
             "204":
               description: "comment deleted correctly"
-
-
 components: 
   parameters:
     username:

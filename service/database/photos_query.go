@@ -18,7 +18,7 @@ func (db *appdbimpl) UploadPhoto(username string, photo string) (string, error) 
 	}
 
 	query := `INSERT INTO photos (id,username,photo, date) VALUES (?,?,?, ?)`
-	//check if photo is a valid base64 string
+	// check if photo is a valid base64 string
 	matched, err := regexp.MatchString(`data:image\/[^;]+;base64[^"]+`, photo)
 	if err != nil {
 		return "", err
@@ -26,17 +26,17 @@ func (db *appdbimpl) UploadPhoto(username string, photo string) (string, error) 
 	if !matched {
 		return "", errors.New("invalid photo")
 	}
-	//generate id
+	// generate id
 	h := fnv.New32a()
 	h.Write([]byte(username + photo))
 	id := strconv.Itoa(int(h.Sum32()))
-	//insert into db
+	// insert into db
 	_, err = db.c.Exec(query, id, username, photo, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
 		return "", err
 	}
 
-	//update nphotos
+	// update nphotos
 	query = `UPDATE users SET nphotos = nphotos + 1 WHERE username = ?`
 	_, err = db.c.Exec(query, username)
 	if err != nil {
@@ -73,7 +73,7 @@ func (db *appdbimpl) GetUserPhotos(username string) ([]string, error) {
 }
 
 func (db *appdbimpl) DeletePhoto(photoid string) error {
-	//get photo owner username
+	// get photo owner username
 	var username string
 	query := `SELECT username FROM photos WHERE id = ?`
 	err := db.c.QueryRow(query, photoid).Scan(&username)
@@ -85,7 +85,7 @@ func (db *appdbimpl) DeletePhoto(photoid string) error {
 	if err != nil {
 		return err
 	}
-	//update nphotos
+	// update nphotos
 	query = `UPDATE users SET nphotos = nphotos - 1 WHERE username = ?`
 	_, err = db.c.Exec(query, username)
 	if err != nil {
@@ -106,8 +106,13 @@ func (db *appdbimpl) GetPhoto(photoid string) (Photo, error) {
 }
 
 func (db *appdbimpl) LikePhoto(username string, photoid string) error {
-	query := `INSERT INTO likes (username, photoid) VALUES (?,?)`
-	_, err := db.c.Exec(query, username, photoid)
+	query := `INSERT INTO likes (id,username, photoid) VALUES (?,?,?)`
+	// generate id
+	h := fnv.New32a()
+	h.Write([]byte(username + photoid))
+	id := strconv.Itoa(int(h.Sum32()))
+
+	_, err := db.c.Exec(query, id, username, photoid)
 	if err != nil {
 		return err
 	}
@@ -115,7 +120,7 @@ func (db *appdbimpl) LikePhoto(username string, photoid string) error {
 }
 
 func (db *appdbimpl) UnlikePhoto(username string, photoid string) error {
-	query := `DELETE FROM likes WHERE(username = ? AND photoid = ?`
+	query := `DELETE FROM likes WHERE(username = ? AND photoid = ?)`
 	_, err := db.c.Exec(query, username, photoid)
 	if err != nil {
 		return err

@@ -1,8 +1,17 @@
 package database
 
-func (db *appdbimpl) CommentPhoto(token string, photoid string, comment string) (int, error) {
-	query := "INSERT INTO comments (token, photoid, comment) VALUES (?, ?, ?)"
-	result, err := db.c.Exec(query, token, photoid, comment)
+import (
+	"hash/fnv"
+	"strconv"
+)
+
+func (db *appdbimpl) CommentPhoto(username string, photoid string, comment string) (int, error) {
+	query := "INSERT INTO comments (id,username, photoid, comment) VALUES (?,?, ?, ?)"
+	h := fnv.New32a()
+	h.Write([]byte(username + photoid))
+	id := strconv.Itoa(int(h.Sum32()))
+
+	result, err := db.c.Exec(query, id, username, photoid, comment)
 	if err != nil {
 		return -1, err
 	}
@@ -13,9 +22,9 @@ func (db *appdbimpl) CommentPhoto(token string, photoid string, comment string) 
 	return int(resultid), nil
 }
 
-func (db *appdbimpl) UncommentPhoto(token string, photoid string, comment int) error {
-	query := "DELETE FROM comments WHERE token = ? AND photoid = ? AND comment = ?"
-	_, err := db.c.Exec(query, token, photoid, comment)
+func (db *appdbimpl) UncommentPhoto(username string, photoid string, comment_id int) error {
+	query := "DELETE FROM comments WHERE username = ? AND photoid = ? AND id = ?"
+	_, err := db.c.Exec(query, username, photoid, comment_id)
 	if err != nil {
 		return err
 	}

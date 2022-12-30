@@ -14,7 +14,7 @@ main.WebAPIConfiguration structure):
 
 This is an example on how to migrate the DB and connect to it:
 
-	// Start Database
+	//  Start Database
 	logger.Println("initializing database support")
 	db, err := sql.Open("sqlite3", "./foo.db")
 	if err != nil {
@@ -82,7 +82,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if db == nil {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
-	//create user table
+	// create user table
 	usertable := `
 		CREATE TABLE IF NOT EXISTS Users
 		(
@@ -94,7 +94,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	//create follow table
+	// create follow table
 	followtable := `
 		CREATE TABLE IF NOT EXISTS Follows
 		(
@@ -107,7 +107,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	//create photo table
+	// create photo table
 
 	phototable := `
 		CREATE TABLE IF NOT EXISTS photos  
@@ -124,7 +124,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	//create comments table
+	// create comments table
 	commenttable := `
 	CREATE TABLE IF NOT EXISTS comments
 	(id INTEGER NOT NULL ,
@@ -139,7 +139,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	//create ban table
+	// create ban table
 	bantable := `
 	CREATE TABLE IF NOT EXISTS ban
 	 (
@@ -153,7 +153,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error creating database structure: %w", err)
 	}
-	//create like table
+	// create like table
 	liketable := `CREATE TABLE IF NOT EXISTS likes
 		(id INTEGER NOT NULL,
 		username TEXT NOT NULL ,

@@ -12,9 +12,9 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 		return "", err
 	}
 	row, err := db.c.Query("select token from tokens where username = ?", username)
-	//check if token exists
-	//if exists, return error "already logged in"
-	//else generate token and insert into db
+	// check if token exists
+	// if exists, return error "already logged in"
+	// else generate token and insert into db
 	if err != nil {
 		print("error here 2")
 		return "", err
@@ -24,7 +24,7 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 		return "", errors.New("already logged in")
 	}
 
-	//generate 20 random character
+	// generate 20 random character
 	token := Generate_random_string(30)
 	query = "INSERT INTO tokens(username, token) VALUES (?, ?)"
 	_, err = db.c.Exec(query, username, token)
@@ -118,7 +118,6 @@ func (db *appdbimpl) UnbanUser(username string, otherusername string) error {
 	return nil
 }
 
-
 func (db *appdbimpl) GetUserProfile(username string) (User, error) {
 	exists, err := db.Exists(username)
 	if err != nil {
@@ -208,7 +207,7 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 			photos = append(photos, photo)
 		}
 	}
-	//order photos by date
+	// order photos by date
 	for i := 0; i < len(photos); i++ {
 		for j := i + 1; j < len(photos); j++ {
 			if photos[i].Date < photos[j].Date {
