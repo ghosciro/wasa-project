@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -39,7 +39,12 @@ func (rt *_router) deleteUserPhotosLikes(w http.ResponseWriter, r *http.Request,
 func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
 	user := ps.ByName("username")
-	comment, err := ioutil.ReadAll(r.Body)
+	comment, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 	comment_s := string(comment)
 	id, err := rt.db.CommentPhoto(user, photo, comment_s)
 	if err != nil {
