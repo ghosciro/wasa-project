@@ -219,6 +219,16 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 
 }
 
+func (db *appdbimpl) GetUserToken(token string) (string, error) {
+	query := "SELECT username FROM tokens WHERE token = ?"
+	var username string
+	err := db.c.QueryRow(query, token).Scan(&username)
+	if err != nil {
+		return "", err
+	}
+	return username, nil
+}
+
 func (db *appdbimpl) GetBanned(username string) ([]string, error) {
 	query := "SELECT banned FROM ban WHERE banner = ?"
 	rows, err := db.c.Query(query, username)

@@ -69,6 +69,7 @@ type AppDatabase interface {
 	GetBanned(username string) ([]string, error)
 	Exists(username string) (bool, error)
 	GetUserPhotos(username string) ([]string, error)
+	GetUserToken(username string) (string, error)
 }
 
 type appdbimpl struct {
