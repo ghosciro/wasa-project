@@ -17,6 +17,18 @@ func (db *appdbimpl) Exists(username string) (bool, error) {
 	return false, nil
 }
 
+func (db *appdbimpl) Isnotbanned(username string, otherusername string) bool {
+	query := "Select count( banned) from ban where banner = ? and banned = ?"
+	var banned int
+	err := db.c.QueryRow(query, otherusername, username).Scan(&banned)
+	if err != nil {
+		return false
+	}
+	print(banned)
+	return banned == 0
+
+}
+
 func Generate_random_string(length int) string {
 	var letters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	b := make([]rune, length)

@@ -23,24 +23,64 @@ func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	token := r.Header.Get("token")
+	username := r.URL.Query().Get("username")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(" your are not the owner "))
+		return
+	}
+	// get my stream from db
+	stream, err := rt.db.GetMyStream(username)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(stream)
 
 }
 
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := r.URL.Query().Get("username")
+	token := r.Header.Get("token")
 	// get usernames from db
 	usernames, err := rt.db.GetUsers(username)
+	var users []string
+	for _, user := range usernames {
+		if rt.db.Isnotbanned(token, user) {
+			users = append(users, user)
+		}
+	}
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(usernames)
+	json.NewEncoder(w).Encode(users)
 }
 
 func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
-	print(username + "\n")
+	token := r.Header.Get("token")
+	user_p, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if !rt.db.Isnotbanned(user_p, username) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are banned"))
+		return
+	}
 	// get user from db
 	user, err := rt.db.GetUserProfile(username)
 	if err != nil {
@@ -58,9 +98,21 @@ func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps ht
 	// read new username from query
 	username := ps.ByName("username")
 	new_username := r.URL.Query().Get("username")
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
 	// insert new username in db
 	print("new username:", new_username)
-	err := rt.db.SetMyUserName(username, new_username)
+	err = rt.db.SetMyUserName(username, new_username)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -73,11 +125,27 @@ func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps ht
 func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
-	// post user following new username
-	print(username + "\n")
-	print(otherusername + "\n")
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
+	if !rt.db.Isnotbanned(valid_username, otherusername) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are banned"))
+		return
+	}
 
-	err := rt.db.FollowUser(username, otherusername)
+	// post user following new username
+
+	err = rt.db.FollowUser(username, otherusername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -97,9 +165,27 @@ func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, p
 
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
-	// post user following new username
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
+	if !rt.db.Isnotbanned(valid_username, otherusername) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are banned"))
+		return
+	}
 
-	err := rt.db.UnfollowUser(username, otherusername)
+	// delete user following new username
+
+	err = rt.db.UnfollowUser(username, otherusername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -116,8 +202,20 @@ func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, p
 func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
 
-	err := rt.db.BanUser(username, otherusername)
+	err = rt.db.BanUser(username, otherusername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -128,6 +226,18 @@ func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps htt
 }
 func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
 	// get banned users from db
 	bannedusers, err := rt.db.GetBanned(username)
 	if err != nil {
@@ -141,8 +251,19 @@ func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps http
 func (rt *_router) deleteUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
-
-	err := rt.db.UnbanUser(username, otherusername)
+	token := r.Header.Get("token")
+	valid_username, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if valid_username != username {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("You are not the owner"))
+		return
+	}
+	err = rt.db.UnbanUser(username, otherusername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))

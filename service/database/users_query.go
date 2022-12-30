@@ -216,7 +216,7 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 		}
 	}
 	return photos, nil
-
+	
 }
 
 func (db *appdbimpl) GetUserToken(token string) (string, error) {
