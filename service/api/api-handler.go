@@ -16,14 +16,14 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.POST("/users/:username/banned/:otherusername", rt.wrap(rt.postUserBanned))
 	rt.router.DELETE("/users/:username/banned/:otherusername", rt.wrap(rt.deleteUserBanned))
 	rt.router.GET("/users/:username/banned", rt.wrap(rt.getUserBanned))
-	rt.router.POST("/users/:username/photos", rt.wrap(rt.UploadPhoto))
-	rt.router.GET("/users/:username/photos", rt.wrap(rt.getUserPhotos))
-	rt.router.DELETE("/users/:username/photos/:photoid", rt.wrap(rt.DeleteUserPhoto))
-	rt.router.GET("/users/:username/photos/:photoid", rt.wrap(rt.GetUserPhoto))
-	rt.router.PUT("/users/:username/photos/:photoid/likes", rt.wrap(rt.putUserPhotosLikes))
-	rt.router.DELETE("/users/:username/photos/:photoid/likes", rt.wrap(rt.deleteUserPhotosLikes))
-	rt.router.POST("/users/:username/photos/:photoid/comments", rt.wrap(rt.postUserPhotosComments))
-	rt.router.DELETE("/users/:username/photos/:photoid/comments/:commentid", rt.wrap(rt.deleteUserPhotosComments))
+	rt.router.POST("/users/:username/Photos", rt.wrap(rt.UploadPhoto))
+	rt.router.GET("/users/:username/Photos", rt.wrap(rt.getUserPhotos))
+	rt.router.DELETE("/users/:username/Photos/:photoid", rt.wrap(rt.DeleteUserPhoto))
+	rt.router.GET("/users/:username/Photos/:photoid", rt.wrap(rt.GetUserPhoto))
+	rt.router.PUT("/users/:username/Photos/:photoid/likes", rt.wrap(rt.putUserPhotosLikes))
+	rt.router.DELETE("/users/:username/Photos/:photoid/likes", rt.wrap(rt.deleteUserPhotosLikes))
+	rt.router.POST("/users/:username/Photos/:photoid/comments", rt.wrap(rt.postUserPhotosComments))
+	rt.router.DELETE("/users/:username/Photos/:photoid/comments/:commentid", rt.wrap(rt.deleteUserPhotosComments))
 
 	return rt.router
 }

@@ -212,7 +212,7 @@ paths:
       responses:
         "204":
           description: "user correctly removed from the banned list"
-  /users/{username}/Photos:
+  /users/{username}/photos:
     parameters:
       - $ref: "#/components/parameters/username"
     post:
@@ -303,7 +303,6 @@ paths:
                 description:  "the like id of that like "
                 type: integer
                 example: 12
-
   /users/{username}/Photos/{photoid}/comments:
       parameters:
       - $ref: "#/components/parameters/pothosid"

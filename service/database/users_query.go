@@ -16,7 +16,6 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 	// if exists, return error "already logged in"
 	// else generate token and insert into db
 	if err != nil {
-		print("error here 2")
 		return "", err
 	}
 

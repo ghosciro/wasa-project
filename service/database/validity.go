@@ -24,7 +24,6 @@ func (db *appdbimpl) Isnotbanned(username string, otherusername string) bool {
 	if err != nil {
 		return false
 	}
-	print(banned)
 	return banned == 0
 
 }

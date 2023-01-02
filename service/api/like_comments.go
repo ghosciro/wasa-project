@@ -16,7 +16,7 @@ func (rt *_router) putUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	if !rt.db.Isnotbanned(valid_user, otheruser) {
@@ -28,15 +28,14 @@ func (rt *_router) putUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	photo := ps.ByName("photoid")
-	print(user, photo)
 	err = rt.db.LikePhoto(user, photo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -47,14 +46,14 @@ func (rt *_router) deleteUserPhotosLikes(w http.ResponseWriter, r *http.Request,
 	user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	photo := ps.ByName("photoid")
 	err = rt.db.UnlikePhoto(user, photo)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -68,12 +67,12 @@ func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	if !rt.db.Isnotbanned(valid_user, otheruser) {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("You are banned"))
+		_, _ = w.Write([]byte("You are banned"))
 		return
 	}
 	comment, err := io.ReadAll(r.Body)
@@ -86,11 +85,12 @@ func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request
 	id, err := rt.db.CommentPhoto(valid_user, photo, comment_s)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(id)
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(id)
+
 }
 func (rt *_router) deleteUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
@@ -98,21 +98,19 @@ func (rt *_router) deleteUserPhotosComments(w http.ResponseWriter, r *http.Reque
 	user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ =w.Write([]byte(err.Error()))
 		return
 	}
-	print(token, "  ", user)
 	comment_id, err := strconv.Atoi(ps.ByName("commentid"))
-	print(photo, user, comment_id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	err = rt.db.UncommentPhoto(user, photo, comment_id)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
