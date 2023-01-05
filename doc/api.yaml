@@ -389,7 +389,7 @@ components:
   schemas:
     User:
       description:  "user object"
-      type: objectz
+      type: object
       properties:
           followers:
             description: "followers of a user"
