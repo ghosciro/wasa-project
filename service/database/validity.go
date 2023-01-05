@@ -7,7 +7,11 @@ import (
 func (db *appdbimpl) Exists(username string) (bool, error) {
 	query := "SELECT username FROM users WHERE username = ?"
 	var user string
-	err := db.c.QueryRow(query, username).Scan(&user)
+	row := db.c.QueryRow(query, username)
+	if row.Err() != nil {
+		return false, row.Err()
+	}
+	err := row.Scan(&user)
 	if err != nil {
 		return false, err
 	}
@@ -20,7 +24,11 @@ func (db *appdbimpl) Exists(username string) (bool, error) {
 func (db *appdbimpl) Isnotbanned(username string, otherusername string) bool {
 	query := "Select count( banned) from ban where banner = ? and banned = ?"
 	var banned int
-	err := db.c.QueryRow(query, otherusername, username).Scan(&banned)
+	row := db.c.QueryRow(query, otherusername, username)
+	if row.Err() != nil {
+		return false
+	}
+	err := row.Scan(&banned)
 	if err != nil {
 		return false
 	}

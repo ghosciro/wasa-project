@@ -76,7 +76,11 @@ func (db *appdbimpl) DeletePhoto(photoid string) error {
 	// get photo owner username
 	var username string
 	query := `SELECT username FROM photos WHERE id = ?`
-	err := db.c.QueryRow(query, photoid).Scan(&username)
+	row := db.c.QueryRow(query, photoid)
+	if row.Err() != nil {
+		return row.Err()
+	}
+	err := row.Scan(&username)
 	if err != nil {
 		return err
 	}
@@ -97,7 +101,11 @@ func (db *appdbimpl) DeletePhoto(photoid string) error {
 func (db *appdbimpl) GetPhoto(photoid string) (Photo, error) {
 	query := `SELECT photo FROM photos WHERE id = ?`
 	var photo Photo
-	err := db.c.QueryRow(query, photoid).Scan(&photo.Photo)
+	row := db.c.QueryRow(query, photoid)
+	if row.Err() != nil {
+		return photo, row.Err()
+	}
+	err := row.Scan(&photo.Photo)
 	photo.Id = photoid
 	if err != nil {
 		return photo, err

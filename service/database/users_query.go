@@ -129,7 +129,11 @@ func (db *appdbimpl) GetUserProfile(username string) (User, error) {
 	var user User
 
 	query := "SELECT username, nphotos  FROM users WHERE username = ?"
-	err = db.c.QueryRow(query, username).Scan(&user.Username, &user.Nphotos)
+	rows := db.c.QueryRow(query, username)
+	if rows.Err() != nil {
+		return user, rows.Err()
+	}
+	err = rows.Scan(&user.Username, &user.Nphotos)
 	if err != nil {
 		return user, err
 	}
@@ -186,7 +190,11 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 	var follow string
 	var photos []Photo
 	query := "SELECT follows FROM users WHERE username = ?"
-	err := db.c.QueryRow(query, username).Scan(&follow)
+	row := db.c.QueryRow(query, username)
+	if row.Err() != nil {
+		return photos, row.Err()
+	}
+	err := row.Scan(&follow)
 	if err != nil {
 		return photos, err
 	}
@@ -215,13 +223,17 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 		}
 	}
 	return photos, nil
-	
+
 }
 
 func (db *appdbimpl) GetUserToken(token string) (string, error) {
 	query := "SELECT username FROM tokens WHERE token = ?"
 	var username string
-	err := db.c.QueryRow(query, token).Scan(&username)
+	row := db.c.QueryRow(query, token)
+	if row.Err() != nil {
+		return "", row.Err()
+	}
+	err := row.Scan(&username)
 	if err != nil {
 		return "", err
 	}

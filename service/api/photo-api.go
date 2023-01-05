@@ -19,13 +19,11 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	valid_username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 
 	if !rt.db.Isnotbanned(valid_username, user) {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("You are banned"))
 		return
 	}
 
@@ -43,19 +41,16 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 }
 
 func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	print("upload photo:")
 	token := r.Header.Get("token")
 	// read from the request the token and the photo id
 	user := ps.ByName("username")
 	tokenizeduser, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
 		return
 	}
 	if tokenizeduser != user {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("You are not the owner of this account"))
 		return
 	}
 	photo, err := io.ReadAll(r.Body)
@@ -71,8 +66,17 @@ func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	// send the photo id
-	json.NewEncoder(w).Encode(id)
-	json.NewEncoder(w).Encode(user)
+	err = json.NewEncoder(w).Encode(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	err = json.NewEncoder(w).Encode(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 }
 
 func (rt *_router) DeleteUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
@@ -83,12 +87,10 @@ func (rt *_router) DeleteUserPhoto(w http.ResponseWriter, r *http.Request, ps ht
 	tokenizeduser, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
 		return
 	}
 	if tokenizeduser != user {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("You are not the owner of this account"))
 		return
 	}
 	// delete the photo from the database
@@ -105,13 +107,11 @@ func (rt *_router) GetUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	valid_username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 
 	if !rt.db.Isnotbanned(valid_username, user) {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("You are banned"))
 		return
 	}
 	photo := ps.ByName("photoid")
@@ -122,5 +122,9 @@ func (rt *_router) GetUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 	// send the photo
-	json.NewEncoder(w).Encode(Picture)
+	err = json.NewEncoder(w).Encode(Picture)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 }

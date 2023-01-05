@@ -212,7 +212,7 @@ paths:
       responses:
         "204":
           description: "user correctly removed from the banned list"
-  /users/{username}/photos:
+  /users/{username}/Photos:
     parameters:
       - $ref: "#/components/parameters/username"
     post:
