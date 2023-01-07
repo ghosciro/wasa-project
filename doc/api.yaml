@@ -131,6 +131,25 @@ paths:
                       example: 
                         -"Maria"
                         -"John"
+  /users/{username}:
+      get:
+        tags: ["User"]
+        summary: "Get user information"
+        description: |-
+          returns back a j-son file object containing all the information
+          related to that user Id
+        operationId: getUserProfile
+        parameters:
+          - $ref: '#/components/parameters/username'
+
+        responses:
+          "200":
+            description: 
+              "user correctly retrieved "
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/User"            
   /users/{username}/options:
     put:
       parameters:
