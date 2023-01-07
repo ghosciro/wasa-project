@@ -46,24 +46,24 @@ func (db *appdbimpl) UploadPhoto(username string, photo string) (string, error) 
 	return id, nil
 }
 
-func (db *appdbimpl) GetUserPhotos(username string) ([]string, error) {
+func (db *appdbimpl) GetUserPhotos(username string) ([]Photo, error) {
 	exists, err := db.Exists(username)
 	if err != nil {
-		return []string{}, err
+		return []Photo{}, err
 	}
 	if !exists {
-		return []string{}, errors.New("user does not exist")
+		return []Photo{}, errors.New("user does not exist")
 	}
 
-	query := `SELECT id FROM photos WHERE username = ?`
+	query := `SELECT id,photo,date FROM photos WHERE username = ?`
 	rows, err := db.c.Query(query, username)
 	if err != nil {
 		return nil, err
 	}
-	var photos []string
+	var photos []Photo
 	for rows.Next() {
-		var photo string
-		err = rows.Scan(&photo)
+		var photo Photo
+		err = rows.Scan(&photo.Id, &photo.Photo, &photo.Date)
 		if err != nil {
 			return nil, err
 		}

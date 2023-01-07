@@ -68,7 +68,7 @@ type AppDatabase interface {
 	UploadPhoto(username string, photo string) (string, error)
 	GetBanned(username string) ([]string, error)
 	Exists(username string) (bool, error)
-	GetUserPhotos(username string) ([]string, error)
+	GetUserPhotos(username string) ([]Photo, error)
 	GetUserToken(token string) (string, error)
 	Isnotbanned(username string, otherusername string) bool
 }

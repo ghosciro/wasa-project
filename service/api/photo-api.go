@@ -12,7 +12,6 @@ import (
 
 func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// read from the request the token and the photo id
-
 	user := ps.ByName("username")
 
 	token := r.Header.Get("token")
@@ -27,13 +26,13 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	Picture, err := rt.db.GetUserPhotos(user)
+	photos, err := rt.db.GetUserPhotos(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	// send the photo
-	err = json.NewEncoder(w).Encode(Picture)
+	err = json.NewEncoder(w).Encode(photos)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
