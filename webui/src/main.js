@@ -7,9 +7,14 @@ import LoadingSpinner from './components/LoadingSpinner.vue'
 
 import './assets/dashboard.css'
 import './assets/main.css'
-
+var config={
+    headers:{
+        token: null 
+        }
+    };
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
+app.config.globalProperties.$config = config;
 app.component("ErrorMsg", ErrorMsg);
 app.component("LoadingSpinner", LoadingSpinner);
 app.use(router)

@@ -8,9 +8,17 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (rt *_router) isalive(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.WriteHeader(http.StatusOK)
+}
+
 func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// get username from query
 	username := r.URL.Query().Get("username")
+	if username == "null" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	// get token from db
 	token, err := rt.db.DoLogin(username)
 	if err != nil {
@@ -28,12 +36,12 @@ func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httpro
 func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	token := r.Header.Get("token")
 	username := r.URL.Query().Get("username")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,6 +58,17 @@ func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+}
+
+func (rt *_router) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	token := r.Header.Get("token")
+	err := rt.db.DoLogout(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	return
 }
 
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
@@ -108,12 +127,12 @@ func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps ht
 	username := ps.ByName("username")
 	new_username := r.URL.Query().Get("username")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -135,22 +154,17 @@ func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps 
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if !rt.db.Isnotbanned(valid_username, otherusername) {
+	if !rt.db.Isnotbanned(username, otherusername) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// post user following new username
-
 	err = rt.db.FollowUser(username, otherusername)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -174,16 +188,16 @@ func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, p
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !rt.db.Isnotbanned(valid_username, otherusername) {
+	if !rt.db.Isnotbanned(username, otherusername) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -212,12 +226,12 @@ func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps htt
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -231,12 +245,12 @@ func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps htt
 func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -257,12 +271,12 @@ func (rt *_router) deleteUserBanned(w http.ResponseWriter, r *http.Request, ps h
 	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
-	valid_username, err := rt.db.GetUserToken(token)
+	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if valid_username != username {
+	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

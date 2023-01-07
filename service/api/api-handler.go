@@ -6,7 +6,9 @@ import (
 
 // Handler returns an instance of httprouter.Router that handle APIs registered here
 func (rt *_router) Handler() http.Handler {
+	rt.router.GET("/", rt.wrap(rt.isalive))
 	rt.router.POST("/session", rt.wrap(rt.postSession))
+	rt.router.DELETE("/session", rt.wrap(rt.deleteSession))
 	rt.router.GET("/home", rt.wrap(rt.getHome))
 	rt.router.GET("/users", rt.wrap(rt.getUsers))
 	rt.router.GET("/users/:username", rt.wrap(rt.getUser))

@@ -20,6 +20,16 @@ func (db *appdbimpl) Exists(username string) (bool, error) {
 	}
 	return false, nil
 }
+func (db *appdbimpl) DeleteTokens() error {
+	query := "DROP TABLE tokens "
+	_, err := db.c.Exec(query)
+	return err
+}
+func (db *appdbimpl) DoLogout(token string) error {
+	query := "delete  from tokens where token = ? "
+	_, err := db.c.Exec(query, token)
+	return err
+}
 
 func (db *appdbimpl) Isnotbanned(username string, otherusername string) bool {
 	query := "Select count( banned) from ban where banner = ? and banned = ?"

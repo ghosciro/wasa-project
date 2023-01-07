@@ -71,6 +71,8 @@ type AppDatabase interface {
 	GetUserPhotos(username string) ([]Photo, error)
 	GetUserToken(token string) (string, error)
 	Isnotbanned(username string, otherusername string) bool
+	DeleteTokens() error
+	DoLogout(token string) error
 }
 
 type appdbimpl struct {

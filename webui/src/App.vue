@@ -1,9 +1,13 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue';
 </script>
 <script>
-export default {}
+export default {
+}
 </script>
+
+
 
 <template>
 
