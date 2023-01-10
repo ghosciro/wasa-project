@@ -12,8 +12,7 @@ export default {
 	},
 	methods: {
 		async refresh() {
-			
-			if(this.$config.header.token !=null ){
+			if(this.$config.headers.token !=null ){
 				document.getElementById("button_login").style.display= "none"
 				document.getElementById("logged in").style.display="initial"
 			}
@@ -44,12 +43,15 @@ export default {
 			console.log("logging out");
 			this.$axios.delete("/session?",this.$config);
 			localStorage.clear();
-			this.$config.header.token=null;
+			this.$config.headers.token=null;
 			this.refresh();
+		},
+		async postphoto(){
+			this.$router.push("/postPoto")
 		}
 	},
 	mounted() {
-		console.log(this.$config.header)
+		console.log(this.$config.headers)
 		this.refresh();
 	}
 }

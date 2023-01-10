@@ -61,8 +61,8 @@ export default {
 				this.refresh()
 			},
 			async follow(){
-				console.log(this.config.headers.token)
-					let response = await this.$axios.post("users/dennis/following/"+this.$route.params.username, null,this.$config);
+				console.log(this.$config.headers.token)
+					let response = await this.$axios.post("users/"+this.$username+"/following/"+this.$route.params.username, null,this.$config);
 					console.log(response)
 					this.refresh()
 			}

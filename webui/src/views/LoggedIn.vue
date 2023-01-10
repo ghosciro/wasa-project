@@ -19,7 +19,8 @@ export default {
 			try{
 				let response = await this.$axios.post("/session?username="+this.username);
 				console.log(response.data)
-				this.$config.header.token = response.data;
+				this.$username=this.username
+				this.$config.headers.token = response.data;
 
 			}
 			catch (e) {

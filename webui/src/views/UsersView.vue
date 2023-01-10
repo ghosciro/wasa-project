@@ -30,7 +30,6 @@ export default {
             async get_user(name){
                 this.$router.push("/users/"+name)
             },
-           
     },
     mounted() {
 		this.refresh();

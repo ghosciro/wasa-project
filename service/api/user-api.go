@@ -124,7 +124,6 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// read new username from query
-	username := ps.ByName("username")
 	new_username := r.URL.Query().Get("username")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
@@ -151,7 +150,6 @@ func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps ht
 }
 
 func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
@@ -184,8 +182,6 @@ func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps 
 }
 
 func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
@@ -223,7 +219,6 @@ func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, p
 }
 
 func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
@@ -243,7 +238,6 @@ func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps htt
 	w.WriteHeader(http.StatusOK)
 }
 func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	username := ps.ByName("username")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
@@ -268,7 +262,6 @@ func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps http
 	}
 }
 func (rt *_router) deleteUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	username := ps.ByName("username")
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)

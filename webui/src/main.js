@@ -12,9 +12,11 @@ var config={
         token: null 
         }
     };
+var username=null
 const app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$config = config;
+app.config.globalProperties.$username=username
 app.component("ErrorMsg", ErrorMsg);
 app.component("LoadingSpinner", LoadingSpinner);
 app.use(router)
