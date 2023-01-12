@@ -4,6 +4,11 @@ import { computed } from 'vue';
 </script>
 <script>
 export default {
+	data: function() {
+		return {
+			token:this.$config.headers.token
+		}
+	}
 }
 </script>
 
@@ -32,17 +37,17 @@ export default {
 								Home
 							</RouterLink>
 						</li>
-						<li class="nav-item">
-							<RouterLink to="/link1" class="nav-link">
+						<li  class="nav-item" id="log_in" v-if="token==null">
+							<RouterLink to="/session" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
-								Menu item 1
+								log-in
 							</RouterLink>
 						</li>
-						<li class="nav-item">
-							<RouterLink to="/link2" class="nav-link">
+						<li class="nav-item" id="log_out"  v-if="token=null">
+						<RouterLink to="/LogOut" class="nav-link"> 
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
-								Menu item 2
-							</RouterLink>
+								logout
+						</RouterLink>	
 						</li>
 					</ul>
 
@@ -51,7 +56,7 @@ export default {
 					</h6>
 					<ul class="nav flex-column">
 						<li class="nav-item">
-							<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
+							<RouterLink to="/" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
 								Item 1
 							</RouterLink>

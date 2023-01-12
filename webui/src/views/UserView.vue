@@ -42,8 +42,9 @@ export default {
 					this.User.Nphotos = response.data.Nphotos; 
 					let response2   = await this.$axios.get("/users/"+this.$route.params.username+"/Photos",this.$config);
 					this.photos = response2.data;
+					console.log(this.photos)
                 this.loading = false;
-				console.log(this.User)
+				//console.log(this.User)
 		    },
 			async showFollowers(){
 				document.getElementById("user_data").style.display="none";
@@ -121,10 +122,12 @@ export default {
 				</div>
 			</div>
 			<div v-if="photos">
-				<div v-for="photo in photos" :key="photo.ID">
-					<img :src="photo.URL" alt="photo" width="200" height="200">
+				<div v-for="photo in photos" :key="photo.Id">
+					<div>
+					<br>
+					<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
+					</div>
 				</div>
-
 			</div>
 		</div>
 		<div id="followers">

@@ -57,6 +57,10 @@ func (db *appdbimpl) GetUserPhotos(username string) ([]Photo, error) {
 
 	query := `SELECT id,photo,date FROM photos WHERE username = ?`
 	rows, err := db.c.Query(query, username)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
 	if err != nil {
 		return nil, err
 	}

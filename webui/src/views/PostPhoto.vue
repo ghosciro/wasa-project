@@ -13,7 +13,7 @@ export default {
 	methods: {
 		async refresh() {
 		},
-        async postPhoto(e){
+        async selectPhoto(e){
             this.loading=true
             this.errormsg=null
             const image = e.target.files[0]
@@ -23,6 +23,19 @@ export default {
                 this.previewImage=e.target.result
                 console.log(this.previewImage)
             }
+        },
+        async postPhoto(){
+            this.loading=true
+            this.errormsg=null
+            try{
+                console.log("users/"+this.$username.username+"/Photos")
+                let response = await this.$axios.post("users/"+this.$username+"/Photos",this.previewImage,this.$config)
+                console.log(response)
+            }catch(e){
+                this.errormsg=e.toString()
+            }
+            this.loading=false
+
         }
 	},
 	mounted() {
@@ -34,8 +47,13 @@ export default {
 <template>
 	<div>
     <h1>Post Your Photo Here</h1>
-    <input type="file" accept="image/jpg/png" @change="postPhoto">
-    <img: src="previewImage" class="uploading-image"/>
+    <div class="uploading-image">
+        <input type="file" accept="image/jpg/png" @change="selectPhoto">
+        <button @click="postPhoto">Post</button>
+    </div>
+    <div>
+        <img :src="previewImage" alt="preview"  width="200" height="200" >
+    </div>
 	</div>
 </template>
 

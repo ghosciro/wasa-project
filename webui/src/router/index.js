@@ -4,17 +4,16 @@ import LoggedIn from '../views/LoggedIn.vue'
 import UsersView from '../views/UsersView.vue'
 import UserView from '../views/UserView.vue'
 import PostPhoto from  '../views/PostPhoto.vue'
+import LogOut from '../views/LogOut.vue'
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
 		{path: '/', component: HomeView},
-		{path: '/link1', component: HomeView},
-		{path: '/link2', component: HomeView},
-		{path: '/some/:id/link', component: HomeView},
 		{path: '/session',component:LoggedIn},
 		{path: '/users',component:UsersView},
 		{path: '/users/:username',component:UserView},
 		{path: '/postPoto', component:PostPhoto},
+		{path: '/logout', component:LogOut}
 		]
 })
 

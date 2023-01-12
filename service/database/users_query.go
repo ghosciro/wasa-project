@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"strings"
 )
 
 func (db *appdbimpl) DoLogin(username string) (string, error) {
@@ -15,6 +14,9 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 	// check if token exists
 	// if exists, return error "already logged in"
 	// else generate token and insert into db
+	if row.Err() != nil {
+		return "", row.Err()
+	}
 	if err != nil {
 		return "", err
 	}
@@ -140,6 +142,9 @@ func (db *appdbimpl) GetUserProfile(username string) (User, error) {
 
 	query = "SELECT follower FROM Follows WHERE followed = ?"
 	row, err := db.c.Query(query, username)
+	if row.Err() != nil {
+		return user, row.Err()
+	}
 	if err != nil {
 		return user, err
 	}
@@ -153,6 +158,9 @@ func (db *appdbimpl) GetUserProfile(username string) (User, error) {
 	}
 	query = "SELECT followed FROM Follows WHERE follower = ?"
 	row, err = db.c.Query(query, username)
+	if row.Err() != nil {
+		return user, row.Err()
+	}
 	if err != nil {
 		return user, err
 	}
@@ -171,6 +179,9 @@ func (db *appdbimpl) GetUsers(userid string) ([]string, error) {
 	query := "SELECT username from users WHERE username LIKE ? "
 	userid += "%"
 	rows, err := db.c.Query(query, userid)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -187,21 +198,30 @@ func (db *appdbimpl) GetUsers(userid string) ([]string, error) {
 }
 
 func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
-	var follow string
+	var following []string
 	var photos []Photo
-	query := "SELECT follows FROM users WHERE username = ?"
-	row := db.c.QueryRow(query, username)
+	query := "Select followed from Follows where follower = ?"
+	row, err := db.c.Query(query, username)
 	if row.Err() != nil {
-		return photos, row.Err()
+		return []Photo{}, row.Err()
 	}
-	err := row.Scan(&follow)
 	if err != nil {
-		return photos, err
+		return []Photo{}, err
 	}
-	followers := strings.Split(follow, ",")
-	for _, follower := range followers {
-		query := "SELECT id, photo, date FROM photos WHERE username = (SELECT username FROM users WHERE username = ? )"
+	for row.Next() {
+		var followed string
+		err = row.Scan(&followed)
+		if err != nil {
+			return []Photo{}, err
+		}
+		following = append(following, followed)
+	}
+	for _, follower := range following {
+		query := "SELECT id, photo, date FROM photos WHERE username = ?"
 		rows, err := db.c.Query(query, follower)
+		if rows.Err() != nil {
+			return photos, rows.Err()
+		}
 		if err != nil {
 			return photos, err
 		}
@@ -223,7 +243,6 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 		}
 	}
 	return photos, nil
-
 }
 
 func (db *appdbimpl) GetUserToken(token string) (string, error) {
@@ -243,6 +262,9 @@ func (db *appdbimpl) GetUserToken(token string) (string, error) {
 func (db *appdbimpl) GetBanned(username string) ([]string, error) {
 	query := "SELECT banned FROM ban WHERE banner = ?"
 	rows, err := db.c.Query(query, username)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
 	if err != nil {
 		return nil, err
 	}
