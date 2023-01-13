@@ -6,7 +6,7 @@ import { computed } from 'vue';
 export default {
 	data: function() {
 		return {
-			token:this.$config.headers.token
+			username:this.$username.username,
 		}
 	}
 }
@@ -37,13 +37,13 @@ export default {
 								Home
 							</RouterLink>
 						</li>
-						<li  class="nav-item" id="log_in" v-if="token==null">
+						<li  class="nav-item" id="log_in">	
 							<RouterLink to="/session" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#layout"/></svg>
 								log-in
 							</RouterLink>
 						</li>
-						<li class="nav-item" id="log_out"  v-if="token=null">
+						<li class="nav-item" id="log_out">
 						<RouterLink to="/LogOut" class="nav-link"> 
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
 								logout
@@ -56,9 +56,15 @@ export default {
 					</h6>
 					<ul class="nav flex-column">
 						<li class="nav-item">
-							<RouterLink to="/" class="nav-link">
+							<RouterLink to="/users" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-								Item 1
+								Search users
+							</RouterLink>
+						</li>
+						<li class="nav-item">
+							<RouterLink to="/postPoto" class="nav-link">
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
+								Post Photo
 							</RouterLink>
 						</li>
 					</ul>

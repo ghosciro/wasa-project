@@ -57,7 +57,6 @@ func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter
 
 func (rt *_router) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	token := r.Header.Get("token")
-	print("token:", token)
 	err := rt.db.DoLogout(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -178,14 +177,11 @@ func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps 
 }
 
 func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+
 	otherusername := ps.ByName("otherusername")
 	token := r.Header.Get("token")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	if username != username {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

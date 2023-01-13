@@ -43,15 +43,22 @@ type User struct {
 	Nphotos  int
 }
 type Photo struct {
-	Id    string
-	Photo string
-	Date  string
+	Id       string
+	Photo    string
+	Date     string
+	Username string
+}
+type Comment struct {
+	Comment  string
+	Id       int
+	Username string
 }
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	BanUser(username string, otherusername string) error
 	CommentPhoto(username string, photoid string, comment string) (int, error)
+	GetComments(photoid string) ([]Comment, error)
 	DeletePhoto(photoid string) error
 	DoLogin(username string) (string, error)
 	FollowUser(username string, otherusername string) error
@@ -60,6 +67,7 @@ type AppDatabase interface {
 	GetUserProfile(userid string) (User, error)
 	GetUsers(username string) ([]string, error)
 	LikePhoto(username string, photoid string) error
+	GetLikes(photoid string) ([]string, error)
 	SetMyUserName(username string, new_username string) error
 	UnbanUser(username string, otherusername string) error
 	UncommentPhoto(username string, photoid string, comment int) error

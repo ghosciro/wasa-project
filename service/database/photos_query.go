@@ -46,6 +46,29 @@ func (db *appdbimpl) UploadPhoto(username string, photo string) (string, error) 
 	return id, nil
 }
 
+func (db *appdbimpl) GetComments(photoid string) ([]Comment, error) {
+	query := `SELECT id,comment,username FROM comments WHERE photoid = ?`
+	rows, err := db.c.Query(query, photoid)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	var comments []Comment
+	for rows.Next() {
+		var comment Comment
+		err = rows.Scan(&comment.Id, &comment.Comment, &comment.Username)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+	return comments, nil
+
+}
+
 func (db *appdbimpl) GetUserPhotos(username string) ([]Photo, error) {
 	exists, err := db.Exists(username)
 	if err != nil {
@@ -103,13 +126,13 @@ func (db *appdbimpl) DeletePhoto(photoid string) error {
 }
 
 func (db *appdbimpl) GetPhoto(photoid string) (Photo, error) {
-	query := `SELECT photo FROM photos WHERE id = ?`
+	query := `SELECT id,photo,username,date FROM photos WHERE id = ?`
 	var photo Photo
 	row := db.c.QueryRow(query, photoid)
 	if row.Err() != nil {
 		return photo, row.Err()
 	}
-	err := row.Scan(&photo.Photo)
+	err := row.Scan(&photo.Id, &photo.Photo, &photo.Username, &photo.Date)
 	photo.Id = photoid
 	if err != nil {
 		return photo, err
@@ -129,6 +152,27 @@ func (db *appdbimpl) LikePhoto(username string, photoid string) error {
 		return err
 	}
 	return nil
+}
+
+func (db *appdbimpl) GetLikes(photoid string) ([]string, error) {
+	query := `SELECT username FROM likes WHERE photoid = ?`
+	rows, err := db.c.Query(query, photoid)
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	if err != nil {
+		return nil, err
+	}
+	var likes []string
+	for rows.Next() {
+		var like string
+		err = rows.Scan(&like)
+		if err != nil {
+			return nil, err
+		}
+		likes = append(likes, like)
+	}
+	return likes, nil
 }
 
 func (db *appdbimpl) UnlikePhoto(username string, photoid string) error {

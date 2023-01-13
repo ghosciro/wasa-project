@@ -58,6 +58,55 @@ func (rt *_router) deleteUserPhotosLikes(w http.ResponseWriter, r *http.Request,
 
 }
 
+func (rt *_router) getUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	photo := ps.ByName("photoid")
+	token := r.Header.Get("token")
+	otheruser := ps.ByName("username")
+	valid_user, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !rt.db.Isnotbanned(valid_user, otheruser) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	comments, err := rt.db.GetComments(photo)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(comments)
+	if err != nil {
+		return
+	}
+}
+
+func (rt *_router) getUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	photo := ps.ByName("photoid")
+	token := r.Header.Get("token")
+	otheruser := ps.ByName("username")
+	valid_user, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !rt.db.Isnotbanned(valid_user, otheruser) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	likes, err := rt.db.GetLikes(photo)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(likes)
+	if err != nil {
+		return
+	}
+}
 func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
 	token := r.Header.Get("token")
@@ -85,7 +134,7 @@ func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	err = json.NewEncoder(w).Encode(id)
 	if err != nil {
-		return 
+		return
 	}
 
 }

@@ -7,23 +7,20 @@ export default {
 			errormsg: null,
 			loading: false,
 			some_data: null,
-			username: null,
 			photos: null,
 		}
 	},
-	methods: {
+	methods: {	
 		async refresh() {
 			console.log(this.$config)
 			if(this.$config.headers.token !=null ){
 				//get my stream and show it
-				document.getElementById("showphotos").style.display="initial"
 				let response = await this.$axios.get("/home",this.$config );
 				this.photos=response.data;
 
 			}
 			else{
 				console.log("no token")
-				document.getElementById("showphotos").style.display="none"
 			}
 
 			this.loading = true;
@@ -37,15 +34,9 @@ export default {
 			}
 			this.loading = false;
 		},
-		async search(){
-			this.$router.push("/users");
+		async go(username,id){
+			router.push("/users/"+username+"/photos/"+id);
 		},
-		async postphoto(){
-			this.$router.push("/postPoto")
-		},
-		async Gocomment(){
-			this.$routher.push("/comments")
-		}
 	},
 	mounted() {
 		this.refresh();
@@ -56,24 +47,16 @@ export default {
 <template>
 <div>
 	<div id ="logged in">
-		<button @click="search()">search users</button>
-		<button @click="postphoto()">post photo</button>
 		<button @click="change_username()">change username</button>
 	</div>
-	<div id="showphotos">
 		<div v-if=photos  v-for="photo in photos" :key="photo.Id">
-			<div>
-				<br>
-				{{photo.Date}}
-				<button>
+				{{photo.Username}}
+				<button @click="go(photo.Username,photo.Id)">
 					<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
 				</button>
-			</div>
+				{{photo.Date}}
 		</div>
-	</div>
 </div>
-
-	
 </template>
 
 

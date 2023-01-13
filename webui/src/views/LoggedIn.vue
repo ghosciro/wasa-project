@@ -13,24 +13,25 @@ export default {
 		async refresh() {
 		},
 		async dologin(){
-			console.log(this.username)
+
 			this.loading = true;
 			this.errormsg = null;
 			try{
 				let response = await this.$axios.post("/session?username="+this.username);
-				console.log(response.data)
-				this.$username=this.username
+
+				
 				this.$config.headers.token = response.data;
-				console.log(this.$config)
-	
-				this.$document.getElementById("log_out").style.display="initial";
-				this.$document.getElementById("log_in").style.display="null";
+				console.log("username:"+this.$username.username)
+				
 			}
 			catch (e) {
 				this.errormsg = e.toString();
 			}
+			if (this.$config.headers.token != null){
+				this.$username.username=this.username
+				this.$router.push("/")
+			}
 			this.loading = false;
-			this.$router.push("/")
 		},
 	},
 	mounted() {

@@ -108,7 +108,6 @@ func (rt *_router) GetUserPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	if !rt.db.Isnotbanned(valid_username, user) {
 		w.WriteHeader(http.StatusBadRequest)
 		return

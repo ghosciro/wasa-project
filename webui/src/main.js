@@ -12,8 +12,12 @@ var config={
         token: null 
         }
     };
+
+var username={
+    username: null
+}
 const app = createApp(App)
-app.config.globalProperties.$username= null;
+app.config.globalProperties.$username= username;
 app.config.globalProperties.$axios = axios;
 app.config.globalProperties.$config = config;
 app.component("ErrorMsg", ErrorMsg);

@@ -17,9 +17,12 @@ export default {
 	},
         methods: {
             async refresh() {		
+				document.getElementById("follow").style.display="initial";
+				document.getElementById("unfollow").style.display="none";
 				document.getElementById("user_data").style.display="initial";
 				document.getElementById("followers").style.display="none";
 				document.getElementById("follows").style.display="none";
+				try {
                 this.loading = true;
                 this.errormsg = null;
                 let response = await this.$axios.get("/users/"+this.$route.params.username,this.$config);
@@ -44,8 +47,23 @@ export default {
 					this.photos = response2.data;
 					console.log(this.photos)
                 this.loading = false;
-				//console.log(this.User)
-		    },
+				//if this.username in followers turn button to unfollow
+				console.log(this.$username.username)
+				if(this.User.Follow){
+				if (this.User.Follow.includes(this.$username.username)){
+					document.getElementById("follow").style.display="none";
+					document.getElementById("unfollow").style.display="initial";
+				}
+				else{
+					document.getElementById("follow").style.display="initial";
+					document.getElementById("unfollow").style.display="none";
+				}
+			}
+			}
+			catch (e) {
+				this.errormsg = e.toString();
+			}
+			},
 			async showFollowers(){
 				document.getElementById("user_data").style.display="none";
 				document.getElementById("followers").style.display="initial";
@@ -66,6 +84,14 @@ export default {
 					let response = await this.$axios.post("users/"+this.$username+"/following/"+this.$route.params.username, null,this.$config);
 					console.log(response)
 					this.refresh()
+			},
+			async unfollow(){
+				console.log("unfollowing")
+				await this.$axios.delete("users/"+this.$username.username+"/following/"+this.$route.params.username,this.$config);
+				this.refresh()
+			},
+			async gophoto(id){
+				await this.$router.push(this.User.Username+"/photos/"+id)
 			}
         },
     mounted() {
@@ -77,29 +103,11 @@ export default {
 
 <template>
 	<div>
-		<div>
-			<div class="btn-toolbar mb-2 mb-md-0">
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh">
-						Refresh
-					</button>
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="exportList">
-						Export
-					</button>
-				</div>
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
-						New
-					</button>
-				</div>
-			</div>
-		</div>
 		<div class="row">
 			<div class="col-1" >
-			<h1	>{{User.Username}}</h1>
-			</div>
-			<div class="col-1">
-			<button @click="follow()">Follow</button>
+				<h1	>{{User.Username}} </h1>
+				<button id="follow" @click="follow()">Follow</button>
+				<button id="unfollow"  @click="unfollow()">Unfollow</button>
 			</div>
 		</div>
 		<div v-if="User" id="user_data">
@@ -123,10 +131,10 @@ export default {
 			</div>
 			<div v-if="photos">
 				<div v-for="photo in photos" :key="photo.Id">
-					<div>
 					<br>
+					<button @click="gophoto(photo.Id)">
 					<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
-					</div>
+					</button>	
 				</div>
 			</div>
 		</div>

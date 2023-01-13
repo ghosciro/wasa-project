@@ -217,7 +217,7 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 		following = append(following, followed)
 	}
 	for _, follower := range following {
-		query := "SELECT id, photo, date FROM photos WHERE username = ?"
+		query := "SELECT id, photo, date, username FROM photos WHERE username = ?"
 		rows, err := db.c.Query(query, follower)
 		if rows.Err() != nil {
 			return photos, rows.Err()
@@ -227,7 +227,7 @@ func (db *appdbimpl) GetMyStream(username string) ([]Photo, error) {
 		}
 		for rows.Next() {
 			var photo Photo
-			err = rows.Scan(&photo.Id, &photo.Photo, &photo.Date)
+			err = rows.Scan(&photo.Id, &photo.Photo, &photo.Date, &photo.Username)
 			if err != nil {
 				return photos, err
 			}
