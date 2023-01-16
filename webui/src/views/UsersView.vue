@@ -39,11 +39,12 @@ export default {
 
 <template>
 	<div>  
+        <input  type="text" v-model = name  >
         <button type = "button" @click=get_users()>
-        search:<input type="text" v-model = name ></button>
+        search</button>
         <div>
             <ul>
-                <li v-for="item in found_users">
+                <li v-for="item in found_users" :key="item">
                     <button type = "button" @click=get_user(item)>{{ item}}</button>
                     
                 </li>

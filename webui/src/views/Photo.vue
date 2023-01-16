@@ -1,5 +1,4 @@
 <script>
-
 export default {
 	data: function() {
 		return {
@@ -22,19 +21,26 @@ export default {
             this.likes= await this.$axios.get("users/"+this.$route.params.username+"/Photos/"+this.$route.params.id+"/likes",this.$config);
             this.likes=this.likes.data;
             if (this.likes!= null) {
-            if(this.likes.includes(this.$username.username)){
-                document.getElementById("likebutton").style.display="none";
-                document.getElementById("unlikebutton").style.display="initial";
+                if(this.likes.includes(this.$username.username)){
+                    document.getElementById("likebutton").style.display="none";
+                    document.getElementById("unlikebutton").style.display="initial";
+                }
+                else{
+                    document.getElementById("likebutton").style.display="initial";
+                    document.getElementById("unlikebutton").style.display="none";
+                }
             }
             else{
-                document.getElementById("likebutton").style.display="initial";
-                document.getElementById("unlikebutton").style.display="none";
+                this.likes=[];
             }
-        }
 		},
         async postcomment(){
             await this.$axios.post("users/"+this.$route.params.username+"/Photos/"+this.$route.params.id+"/comments",this.mycomment,this.$config);
             this.mycomment=null;
+            this.refresh();
+        },
+        async deletecomment(id){
+            await this.$axios.delete("users/"+this.$route.params.username+"/Photos/"+this.$route.params.id+"/comments/"+id,this.$config);
             this.refresh();
         },
         async like(){
@@ -62,6 +68,7 @@ export default {
         <div>
             <button @click="like()" id="likebutton">Like</button>
             <button @click="unlike()" id="unlikebutton">unLike</button>
+            <p>Likes: {{likes.length}}</p>
         </div>
         <br>
         <div>
@@ -70,11 +77,29 @@ export default {
         </div>
         <div v-if=comments>
             <ul>
-                <li v-for="comment in comments">
-                    <p>{{comment.Username}}:    {{comment.Comment}}</p>
+                <li v-for="comment in comments" :key="comment.Id">
+                    <p>{{comment.Username}}
+                    <button v-if="comment.Username == this.$username.username" @click="deletecomment(comment.Id)">Delete</button>
+                    :{{comment.Comment}}</p>
                     <br>
                 </li>
             </ul>
         </div>
 	</div>
 </template>
+
+<style>
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 300px; 
+}
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+</style>

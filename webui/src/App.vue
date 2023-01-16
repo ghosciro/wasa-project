@@ -67,6 +67,12 @@ export default {
 								Post Photo
 							</RouterLink>
 						</li>
+						<li class="nav-item">
+							<RouterLink to="/myprofile" class="nav-link">
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
+								My Profile
+							</RouterLink>
+						</li>
 					</ul>
 				</div>
 			</nav>

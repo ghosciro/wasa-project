@@ -45,17 +45,14 @@ export default {
 </script>
 
 <template>
-<div>
-	<div id ="logged in">
-		<button @click="change_username()">change username</button>
+<div v-if="this.$username.username">
+	<div v-if=photos v-for="photo in photos" :key="photo.Id">
+			{{photo.Username}}
+			<button @click="go(photo.Username,photo.Id)">
+				<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
+			</button>
+			{{photo.Date}}
 	</div>
-		<div v-if=photos  v-for="photo in photos" :key="photo.Id">
-				{{photo.Username}}
-				<button @click="go(photo.Username,photo.Id)">
-					<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
-				</button>
-				{{photo.Date}}
-		</div>
 </div>
 </template>
 

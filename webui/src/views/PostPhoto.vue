@@ -29,8 +29,9 @@ export default {
             this.errormsg=null
             try{
                 console.log("users/"+this.$username.username+"/Photos")
-                let response = await this.$axios.post("users/"+this.$username+"/Photos",this.previewImage,this.$config)
+                let response = await this.$axios.post("users/"+this.$username.username+"/Photos",this.previewImage,this.$config)
                 console.log(response)
+                this.$router.push("/")
             }catch(e){
                 this.errormsg=e.toString()
             }

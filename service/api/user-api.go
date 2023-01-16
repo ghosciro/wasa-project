@@ -69,11 +69,17 @@ func (rt *_router) deleteSession(w http.ResponseWriter, r *http.Request, ps http
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := r.URL.Query().Get("username")
 	token := r.Header.Get("token")
+	user_p, err := rt.db.GetUserToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	// get usernames from db
 	usernames, err := rt.db.GetUsers(username)
+
 	var users []string
 	for _, user := range usernames {
-		if rt.db.Isnotbanned(token, user) {
+		if rt.db.Isnotbanned(user_p, user) {
 			users = append(users, user)
 		}
 	}

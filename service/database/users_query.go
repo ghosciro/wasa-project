@@ -176,7 +176,7 @@ func (db *appdbimpl) GetUserProfile(username string) (User, error) {
 }
 
 func (db *appdbimpl) GetUsers(userid string) ([]string, error) {
-	query := "SELECT username from users WHERE username LIKE ? "
+	query := "SELECT username from users WHERE username LIKE ?  "
 	userid += "%"
 	rows, err := db.c.Query(query, userid)
 	if rows.Err() != nil {

@@ -122,6 +122,17 @@ func (db *appdbimpl) DeletePhoto(photoid string) error {
 	if err != nil {
 		return err
 	}
+	query = `DELETE FROM comments WHERE photoid = ?`
+	_, err = db.c.Exec(query, photoid)
+	if err != nil {
+		return err
+	}
+	query = `DELETE FROM likes WHERE photoid = ?`
+	_, err = db.c.Exec(query, photoid)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
