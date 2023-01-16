@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"git.sapienzaapps.it/fantasticcoffee/fantastic-coffee-decaffeinated/service/api/reqcontext"
@@ -13,14 +14,20 @@ func (rt *_router) isalive(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	// get username from query
-	username := r.URL.Query().Get("username")
-	if username == "null" {
+	// get username from body
+	username, err := io.ReadAll(r.Body)
+	username_s := string(username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if username_s == "null" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// get token from db
-	token, err := rt.db.DoLogin(username)
+	token, err := rt.db.DoLogin(username_s)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

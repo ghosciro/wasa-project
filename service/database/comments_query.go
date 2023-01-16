@@ -8,7 +8,7 @@ import (
 func (db *appdbimpl) CommentPhoto(username string, photoid string, comment string) (int, error) {
 	query := "INSERT INTO comments (id,username, photoid, comment) VALUES (?,?, ?, ?)"
 	h := fnv.New32a()
-	h.Write([]byte(username + photoid+comment))
+	h.Write([]byte(username + photoid + comment))
 	id := strconv.Itoa(int(h.Sum32()))
 
 	result, err := db.c.Exec(query, id, username, photoid, comment)

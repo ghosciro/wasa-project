@@ -43,6 +43,7 @@ paths:
           application/json:
             schema:
               type: object
+              description: Username
               properties:
                 name:
                   type: string
@@ -50,6 +51,7 @@ paths:
                   pattern: '^[a-zA-Z0-9_]*$'
                   minLength: 3
                   maxLength: 64
+                  description: username
         required: true
       responses:
         '201':
@@ -62,6 +64,7 @@ paths:
                 type: object
                 properties:
                   token:
+                    description: session ID
                     type: string
                     minLength: 1
                     maxLength: 128
@@ -82,8 +85,9 @@ paths:
                   schema:
                     description: user home page
                     type: object
-                    properties:
+                    properties: 
                       photos:
+                        description: photos list
                         type: array
                         items:
                           type: object
@@ -120,6 +124,7 @@ paths:
                   type: object
                   properties:
                     users:
+                      description: users list
                       type: array
                       items:
                         type: string
@@ -128,9 +133,7 @@ paths:
                         maxLength: 64
                       minItems: 0  
                       maxItems: 1024
-                      example: 
-                        -"Maria"
-                        -"John"
+                      example: ["lucas","maria"]
   /users/{username}:
       get:
         tags: ["User"]
@@ -164,14 +167,16 @@ paths:
         content:
           application/json:
             schema:
+              description: new username object
               type: object
               properties:
                 name:
+                  description: "new username"
                   type: string 
                   pattern: "^[a-zA-Z0-9_]*$"
                   minLength: 3
                   maxLength: 64
-              example: "lucas2001"
+              example: {"name": "lucas"}
         required: true
       responses:
         "204":
@@ -189,7 +194,7 @@ paths:
         adding the selected user
       operationId: followUser
       responses:
-        "201":
+        "204":
           description: "user correctly added to the following list"
     delete:
       tags: [Other User]
@@ -211,7 +216,7 @@ paths:
       description: "takes the id of a user and adds it to the banned list of another user "
       operationId: "banUser"
       responses:
-        "201":
+        "204":
           description: "user correctly added to the banned list"
     delete:
       tags: [Other User]
@@ -232,6 +237,7 @@ paths:
       parameters:
         - name: "photo"
           in : query
+          description: "photo to be uploaded"
           required: true
           schema :
             type: string
@@ -274,10 +280,9 @@ paths:
           content:
             application/json:
               schema:
-                description: "the photo object"
                 $ref: '#/components/schemas/Photo'
-        "404":
-          description: "photo not found"
+
+          
     delete:
       tags: [Photos]
       summary: "delete a picture"
