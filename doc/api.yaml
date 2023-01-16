@@ -300,7 +300,7 @@ paths:
         responses:
           "204":
             description: "like deleted correctly"
-    post:
+    put:
       tags: ["Photos"]
       summary: "like a picture"
       description: "takes the Id of a Picture , the ID of the logged in user , and adds a like to it"
