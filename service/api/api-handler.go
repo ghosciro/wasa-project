@@ -29,7 +29,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/users/:username/following/:otherusername", rt.wrap(rt.deleteUserFollowing))
 	rt.router.DELETE("/users/:username/banned/:otherusername", rt.wrap(rt.deleteUserBanned))
 	rt.router.DELETE("/users/:username/Photos/:photoid", rt.wrap(rt.DeleteUserPhoto))
-	rt.router.DELETE("/users/:username/Photos/:photoid/likes/:likeid", rt.wrap(rt.deleteUserPhotosLikes))
+	rt.router.DELETE("/users/:username/Photos/:photoid/likes", rt.wrap(rt.deleteUserPhotosLikes))
 	rt.router.DELETE("/users/:username/Photos/:photoid/comments/:commentid", rt.wrap(rt.deleteUserPhotosComments))
 
 	return rt.router
