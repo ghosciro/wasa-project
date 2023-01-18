@@ -314,11 +314,26 @@ paths:
         "201":
           description: "liked added correctly"
           content:
+            
             application/json:
               schema:
                 description:  "the like id of that like "
                 type: integer
                 example: 12
+  /users/{username}/Photos/{photoid}/likes/{likeid}:
+    parameters:
+      - $ref: "#/components/parameters/pothosid"
+      - $ref: "#/components/parameters/username"
+    delete:
+      tags: [Photos]
+      summary: "delete a like"
+      description: |
+        delete a like from a picture
+      operationId: "unlikePhoto"
+      responses:
+        "204":
+          description: "like deleted correctly"
+
   /users/{username}/Photos/{photoid}/comments:
       parameters:
       - $ref: "#/components/parameters/pothosid"
