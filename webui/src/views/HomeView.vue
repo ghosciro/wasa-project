@@ -46,12 +46,14 @@ export default {
 
 <template>
 <div v-if="this.$username.username">
-	<div v-if=photos v-for="photo in photos" :key="photo.Id">
+	<div v-if=photos>
+		<div v-for="photo in photos" :key="photo.Id">
 			{{photo.Username}}
 			<button @click="go(photo.Username,photo.Id)">
 				<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
 			</button>
 			{{photo.Date}}
+		</div>
 	</div>
 </div>
 </template>

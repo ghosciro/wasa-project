@@ -48,7 +48,7 @@ export default {
             this.refresh();
         },
         async unlike(){
-            await this.$axios.delete("users/"+this.$route.params.username+"/Photos/"+this.$route.params.id+"/likes",this.$config);
+            await this.$axios.delete("users/"+this.$route.params.username+"/Photos/"+this.$route.params.id+"/likes/"+this.$username.username,this.$config);
             this.refresh();
         }
 	},
