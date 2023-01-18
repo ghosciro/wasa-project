@@ -20,7 +20,7 @@ export default {
 			this.loading = true;
 			this.errormsg = null;
 			try{
-				let response = await this.$axios.post("/session",this.username);
+				let response = await this.$axios.post("/session",{"username":this.username},this.$config);
 
 				
 				this.$config.headers.token = response.data;
