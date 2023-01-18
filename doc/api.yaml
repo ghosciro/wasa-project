@@ -275,7 +275,7 @@ paths:
         returns the photo object with the given id
       operationId: getPhoto
       responses:
-        "202":
+        "200":
           description: "photo correctly returned"
           content:
             application/json:
