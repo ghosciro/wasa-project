@@ -14,7 +14,7 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 	// read from the request the token and the photo id
 	user := ps.ByName("username")
 
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	valid_username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,7 +40,7 @@ func (rt *_router) getUserPhotos(w http.ResponseWriter, r *http.Request, ps http
 }
 
 func (rt *_router) UploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	// read from the request the token and the photo id
 	user := ps.ByName("username")
 	tokenizeduser, err := rt.db.GetUserToken(token)
@@ -82,7 +82,7 @@ func (rt *_router) DeleteUserPhoto(w http.ResponseWriter, r *http.Request, ps ht
 	// read from the request the token and the photo id
 	photo := ps.ByName("photoid")
 	user := ps.ByName("username")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	tokenizeduser, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -102,7 +102,7 @@ func (rt *_router) DeleteUserPhoto(w http.ResponseWriter, r *http.Request, ps ht
 func (rt *_router) GetUserPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// read from the request the token and the photo id
 	user := ps.ByName("username")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	valid_username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

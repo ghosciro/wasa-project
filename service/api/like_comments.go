@@ -11,7 +11,7 @@ import (
 )
 
 func (rt *_router) putUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	otheruser := ps.ByName("username")
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
@@ -39,7 +39,7 @@ func (rt *_router) putUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps
 }
 
 func (rt *_router) deleteUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -60,7 +60,7 @@ func (rt *_router) deleteUserPhotosLikes(w http.ResponseWriter, r *http.Request,
 
 func (rt *_router) getUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	otheruser := ps.ByName("username")
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
@@ -85,7 +85,7 @@ func (rt *_router) getUserPhotosComments(w http.ResponseWriter, r *http.Request,
 
 func (rt *_router) getUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	otheruser := ps.ByName("username")
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
@@ -109,7 +109,7 @@ func (rt *_router) getUserPhotosLikes(w http.ResponseWriter, r *http.Request, ps
 }
 func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	otheruser := ps.ByName("username")
 	valid_user, err := rt.db.GetUserToken(token)
 	if err != nil {
@@ -140,7 +140,7 @@ func (rt *_router) postUserPhotosComments(w http.ResponseWriter, r *http.Request
 }
 func (rt *_router) deleteUserPhotosComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	photo := ps.ByName("photoid")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	user, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

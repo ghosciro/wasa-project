@@ -13,7 +13,7 @@ export default {
 	methods: {	
 		async refresh() {
 			console.log(this.$config)
-			if(this.$config.headers.token !=null ){
+			if(this.$config.headers.Authorization !=null ){
 				//get my stream and show it
 				let response = await this.$axios.get("/home",this.$config );
 				this.photos=response.data;
@@ -46,7 +46,7 @@ export default {
 
 <template>
 <div v-if="this.$username.username">
-	<div v-if=photos>
+	<div v-if="photos">
 		<div v-for="photo in photos" :key="photo.Id">
 			{{photo.Username}}
 			<button @click="go(photo.Username,photo.Id)">

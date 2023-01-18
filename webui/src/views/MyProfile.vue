@@ -158,7 +158,7 @@ export default{
 					<button @click="gophoto(photo.Id)">
 					<img :src="photo.Photo"  class="Bordered" alt="photo" width="200" height="200">
 					</button>
-                    <button @click="deletePhoto(photo.Id)">Delete</button>"	
+                    <button @click="deletePhoto(photo.Id)">Delete</button>	
                 </div>
 			</div>
 		</div>

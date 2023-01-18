@@ -11,7 +11,7 @@ export default {
 		async refresh() {
 			await this.$axios.delete("/session?",this.$config)
 			
-			this.$config.headers.token=null
+			this.$config.headers.Authorization=null
 			this.$username=null
 			console.log(this.$config.headers)
 			this.$router.push("/session")

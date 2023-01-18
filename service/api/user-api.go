@@ -23,7 +23,6 @@ func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	if username.Username == "null" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -43,7 +42,7 @@ func (rt *_router) postSession(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -65,7 +64,7 @@ func (rt *_router) getHome(w http.ResponseWriter, r *http.Request, ps httprouter
 }
 
 func (rt *_router) deleteSession(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	err := rt.db.DoLogout(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -76,7 +75,7 @@ func (rt *_router) deleteSession(w http.ResponseWriter, r *http.Request, ps http
 
 func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := r.URL.Query().Get("username")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	user_p, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -106,7 +105,7 @@ func (rt *_router) getUsers(w http.ResponseWriter, r *http.Request, ps httproute
 
 func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	username := ps.ByName("username")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	user_p, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -134,7 +133,7 @@ func (rt *_router) getUser(w http.ResponseWriter, r *http.Request, ps httprouter
 func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// read new username from query
 	new_username := r.URL.Query().Get("username")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -156,7 +155,7 @@ func (rt *_router) postUserOptions(w http.ResponseWriter, r *http.Request, ps ht
 
 func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	otherusername := ps.ByName("otherusername")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -189,7 +188,7 @@ func (rt *_router) postUserFollowing(w http.ResponseWriter, r *http.Request, ps 
 func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	otherusername := ps.ByName("otherusername")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -222,7 +221,7 @@ func (rt *_router) deleteUserFollowing(w http.ResponseWriter, r *http.Request, p
 
 func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	otherusername := ps.ByName("otherusername")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -236,7 +235,7 @@ func (rt *_router) postUserBanned(w http.ResponseWriter, r *http.Request, ps htt
 	w.WriteHeader(http.StatusOK)
 }
 func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -257,7 +256,7 @@ func (rt *_router) getUserBanned(w http.ResponseWriter, r *http.Request, ps http
 }
 func (rt *_router) deleteUserBanned(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	otherusername := ps.ByName("otherusername")
-	token := r.Header.Get("token")
+	token := r.Header.Get("Authorization")
 	username, err := rt.db.GetUserToken(token)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

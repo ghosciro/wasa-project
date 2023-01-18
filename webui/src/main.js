@@ -9,7 +9,7 @@ import './assets/dashboard.css'
 import './assets/main.css'
 var config={
     headers:{
-        token: null 
+        Authorization: null 
         }
     };
     
